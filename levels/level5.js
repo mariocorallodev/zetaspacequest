@@ -10,6 +10,10 @@ export const level5Data = {
   // --- NUOVO: Dimensione del compagno per questo livello ---
   sidekickSize: 180, // Puoi aumentare o ridurre la dimensione del compagno (es. 40, 60, 100)
 
+
+    // --- NUOVO: Nome del compagno per questo livello ---
+  sidekickName: "VITTORIA", // Aggiungi il nome del sidekick qui
+
   // Asset specifici per questo livello
   backgroundImage: require('../assets/background2.png'), // Potrebbe essere background3.png
   enemyImage: require('../assets/lupo.png'), 

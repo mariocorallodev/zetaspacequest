@@ -7,9 +7,9 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 export const SIDEKICK_NAME_FADE_IN_DURATION = 300;
 export const SIDEKICK_NAME_HOLD_DURATION = 1000;
 export const SIDEKICK_NAME_FADE_OUT_DURATION = 500;
-export const SIDEKICK_NAME_INITIAL_SCALE = 1.5; 
-export const SIDEKICK_NAME_FINAL_SCALE = 1.0;  
-export const SIDEKICK_NAME_Y_OFFSET = 200; 
+export const SIDEKICK_NAME_INITIAL_SCALE = 6.5; 
+export const SIDEKICK_NAME_FINAL_SCALE = 2.0;  
+export const SIDEKICK_NAME_Y_OFFSET = 150; 
 export const SIDEKICK_NAME_FONT_SIZE = 10; 
 export const SIDEKICK_NAME_COLOR = 'yellow'; 
 

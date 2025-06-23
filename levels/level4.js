@@ -8,7 +8,11 @@ export const level4Data = {
   sidekickImage: require('../assets/golia.png'),
   
   // --- NUOVO: Dimensione del compagno per questo livello ---
-  sidekickSize: 180, // Puoi aumentare o ridurre la dimensione del compagno (es. 40, 60, 100)
+  sidekickSize: 220, // Puoi aumentare o ridurre la dimensione del compagno (es. 40, 60, 100)
+
+
+    // --- NUOVO: Nome del compagno per questo livello ---
+  sidekickName: "GOLIA", // Aggiungi il nome del sidekick qui
 
   // Asset specifici per questo livello
   backgroundImage: require('../assets/background2.png'), // Potrebbe essere background3.png
