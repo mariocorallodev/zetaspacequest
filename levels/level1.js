@@ -24,5 +24,5 @@ export const level1Data = {
   enemySpacing: 15,
 
   // Velocità di movimento dei nemici
-  enemyMoveInterval: 30, // Si muovono ogni 30 tick (più basso = più veloce)
+  enemyMoveInterval: 90, // Si muovono ogni 30 tick (più basso = più veloce)
 };

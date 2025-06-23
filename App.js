@@ -1,4 +1,4 @@
-// App.js – CORRETTO PER L'ERRORE useInsertionEffect
+// App.js – Con logica di navigazione e leaderboard corretta
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { View, Image, TouchableOpacity, Dimensions, Text, Animated, SafeAreaView, PanResponder } from 'react-native';
@@ -31,10 +31,9 @@ import { level7Data } from './levels/level7';
 import { handlePoweredUpFire } from './PowerUpManager';
 // --- Importa la funzione di animazione del tremolio ---
 import { startShakeAnimation } from './utils/Animations';
+import { useLevelEffects } from './utils/bossShakeAnimation';
 
 const allLevels = [level1Data, level2Data, level3Data, level4Data, level5Data, level6Data, level7Data];
-
-// --- IMPOSTAZIONI DI DEBUG ---
 const START_LEVEL = 1;
 
 // --- COSTANTI DI GIOCO ---
@@ -50,6 +49,12 @@ const FIRE_COOLDOWN = 250;
 const ENEMY_MOVE_SPEED = 10;
 const ENEMY_VERTICAL_MOVE = ENEMY_HEIGHT / 2;
 const POWERUP_SIZE = 50;
+
+// --- COSTANTI PER LA SCHERMATA DI PAUSA ---
+const PAUSE_TITLE_FONT_SIZE = 40;
+const PAUSE_BUTTON_FONT_SIZE = 18;
+const PAUSE_BUTTON_PADDING_V = 15;
+const PAUSE_BUTTON_PADDING_H = 30;
 
 // --- ASSET GENERICI ---
 const dogImage = require('./assets/zeta2.png');
@@ -67,6 +72,7 @@ export default function App() {
   const [started, setStarted] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
   const [isExited, setIsExited] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [lives, setLives] = useState(INITIAL_LIVES);
   const [score, setScore] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
@@ -110,24 +116,17 @@ export default function App() {
 
   const [fontsLoaded] = useFonts({ 'PressStart2P': PressStart2P_400Regular });
   const latestHandleFireRef = useRef();
+  
+  const updateLevelEffects = useLevelEffects(levelData, shakeAnimation);
 
-  // --- MODIFICA 1: NUOVO USEEFFECT PER GESTIRE LA VISIBILITÀ DELLA LEADERBOARD ---
-  // Questo effect si attiva quando `isGameOver` cambia.
-  // È il modo corretto e sicuro per concatenare eventi in React.
   useEffect(() => {
-    // Se il gioco è finito e la leaderboard non è ancora mostrata...
-    if (isGameOver && !showLeaderboard) {
-      // Aspettiamo che l'animazione di "Game Over" finisca (dura 500ms)
-      // e poi mostriamo la leaderboard.
+    if ((isGameOver || showWinScreen) && !showLeaderboard) {
       const timer = setTimeout(() => {
         setShowLeaderboard(true);
-      }, 600); // Leggermente più di 500ms per sicurezza
-
-      // Funzione di pulizia per evitare memory leak
+      }, 600);
       return () => clearTimeout(timer);
     }
-  }, [isGameOver, showLeaderboard]); // Dipendenze dell'effect
-
+  }, [isGameOver, showWinScreen, showLeaderboard]);
 
   const handleFire = useCallback(() => {
     const now = Date.now();
@@ -183,7 +182,7 @@ export default function App() {
       try {
         await powerUpAudio.current.loadAsync(powerUpSoundFile);
       } catch (e) {
-        console.log("Audio powerup.mp3 non trovato, il powerup sarà silenzioso.");
+        console.log("Audio powerup.mp3 non trovato.");
       }
     };
     loadGenericSounds();
@@ -197,7 +196,7 @@ export default function App() {
   useEffect(() => {
     let powerUpTimer;
     const schedulePowerUp = () => {
-      if(started && !isGameOver && !isLevelTransitioning && !powerUpRef.current) {
+      if(started && !isPaused && !isGameOver && !isLevelTransitioning && !powerUpRef.current) {
         const delay = Math.random() * 3000 + 3000;
         powerUpTimer = setTimeout(() => {
           powerUpRef.current = { x: Math.random() * (SCREEN_WIDTH - POWERUP_SIZE), y: -POWERUP_SIZE, rotation: 0 };
@@ -207,46 +206,50 @@ export default function App() {
     };
     if (started) schedulePowerUp();
     return () => clearTimeout(powerUpTimer);
-  }, [started, isGameOver, isLevelTransitioning]);
+  }, [started, isPaused, isGameOver, isLevelTransitioning]);
 
   useEffect(() => {
     const manageMusic = async () => {
       if (!backgroundMusic.current) return;
-      const shouldPlay = started && !isGameOver && !isExited && !isLevelTransitioning;
+      const shouldPlay = started && !isPaused && !isGameOver && !isExited && !isLevelTransitioning;
       const status = await backgroundMusic.current.getStatusAsync();
       if (shouldPlay) {
         if (!status.isPlaying) {
           try {
-            if (status.isLoaded) { await backgroundMusic.current.stopAsync(); await backgroundMusic.current.unloadAsync(); }
+            if (status.isLoaded) await backgroundMusic.current.unloadAsync();
             await backgroundMusic.current.loadAsync(levelData.backgroundMusicFile, { isLooping: true });
             await backgroundMusic.current.setVolumeAsync(isMuted ? 0.0 : 0.5);
             await backgroundMusic.current.playAsync();
           } catch (e) {}
         }
-      } else { if (status.isLoaded) { await backgroundMusic.current.stopAsync(); await backgroundMusic.current.unloadAsync(); } }
+      } else {
+        if (status.isPlaying) {
+          await backgroundMusic.current.pauseAsync();
+        }
+      }
     };
     manageMusic();
-  }, [started, isGameOver, isExited, isLevelTransitioning, levelData, isMuted]);
+  }, [started, isPaused, isGameOver, isExited, isLevelTransitioning, levelData, isMuted]);
 
   useEffect(() => { livesRef.current = lives; }, [lives]);
 
   useEffect(() => {
     if (isPoweredUp && levelData.sidekickName) {
-      sidekickNameScaleAnim.setValue(SIDEKICK_NAME_INITIAL_SCALE);
-      sidekickNameOpacityAnim.setValue(0);
-      Animated.sequence([
-        Animated.parallel([
-          Animated.timing(sidekickNameOpacityAnim, { toValue: 1, duration: SIDEKICK_NAME_FADE_IN_DURATION, useNativeDriver: true }),
-          Animated.timing(sidekickNameScaleAnim, { toValue: SIDEKICK_NAME_FINAL_SCALE, duration: SIDEKICK_NAME_FADE_IN_DURATION, useNativeDriver: true })
-        ]),
-        Animated.delay(SIDEKICK_NAME_HOLD_DURATION),
-        Animated.timing(sidekickNameOpacityAnim, { toValue: 0, duration: SIDEKICK_NAME_FADE_OUT_DURATION, useNativeDriver: true })
-      ]).start();
-    } else {
-      sidekickNameScaleAnim.setValue(0);
-      sidekickNameOpacityAnim.setValue(0);
-    }
-  }, [isPoweredUp, levelData, sidekickNameScaleAnim, sidekickNameOpacityAnim]);
+        sidekickNameScaleAnim.setValue(SIDEKICK_NAME_INITIAL_SCALE);
+        sidekickNameOpacityAnim.setValue(0);
+        Animated.sequence([
+          Animated.parallel([
+            Animated.timing(sidekickNameOpacityAnim, { toValue: 1, duration: SIDEKICK_NAME_FADE_IN_DURATION, useNativeDriver: true }),
+            Animated.timing(sidekickNameScaleAnim, { toValue: SIDEKICK_NAME_FINAL_SCALE, duration: SIDEKICK_NAME_FADE_IN_DURATION, useNativeDriver: true })
+          ]),
+          Animated.delay(SIDEKICK_NAME_HOLD_DURATION),
+          Animated.timing(sidekickNameOpacityAnim, { toValue: 0, duration: SIDEKICK_NAME_FADE_OUT_DURATION, useNativeDriver: true })
+        ]).start();
+      } else {
+        sidekickNameScaleAnim.setValue(0);
+        sidekickNameOpacityAnim.setValue(0);
+      }
+  }, [isPoweredUp, levelData]);
 
   const initializeEnemies = useCallback(() => {
     const newEnemies = [];
@@ -271,8 +274,6 @@ export default function App() {
       setTimeout(() => {
         if (currentLevel >= allLevels.length) {
           setShowWinScreen(true);
-          setIsGameOver(true);
-          // Qui non serve chiamare setShowLeaderboard perché l'effect se ne occuperà
         } else {
           setIsLevelReady(false);
           const nextLevel = currentLevel + 1;
@@ -288,6 +289,8 @@ export default function App() {
   const forceNextLevel = () => { if (isLevelTransitioning || isGameOver) return; enemyRef.current = []; };
 
   const onUpdate = () => {
+    if (isPaused) return;
+    updateLevelEffects();
     if (!started || isGameOver || isExited || isLevelTransitioning || !isLevelReady) return;
     if (enemyRef.current.length > 0 && enemyRef.current.every(e => e.isExploding)) { enemyRef.current = []; }
     if (enemyRef.current.length === 0) { handleLevelComplete(); return; }
@@ -312,63 +315,63 @@ export default function App() {
       let mustMoveDown = false;
       for (const enemy of enemyRef.current) {
         if (!enemy.isExploding) {
-          if (enemyDirectionRef.current === 'right' && enemy.x + enemy.width >= SCREEN_WIDTH) { mustMoveDown = true; break; }
-          if (enemyDirectionRef.current === 'left' && enemy.x <= 0) { mustMoveDown = true; break; }
+          if ((enemyDirectionRef.current === 'right' && enemy.x + enemy.width >= SCREEN_WIDTH) || (enemyDirectionRef.current === 'left' && enemy.x <= 0)) {
+            mustMoveDown = true;
+            break;
+          }
         }
       }
-      let yOffset = 0;
       if (mustMoveDown) {
         enemyDirectionRef.current = enemyDirectionRef.current === 'right' ? 'left' : 'right';
-        yOffset = ENEMY_VERTICAL_MOVE;
+        enemyRef.current = enemyRef.current.map(e => e.isExploding ? e : { ...e, y: e.y + ENEMY_VERTICAL_MOVE });
+      } else {
+        const xOffset = enemyDirectionRef.current === 'right' ? ENEMY_MOVE_SPEED : -ENEMY_MOVE_SPEED;
+        enemyRef.current = enemyRef.current.map(e => e.isExploding ? e : { ...e, x: e.x + xOffset });
       }
-      const xOffset = enemyDirectionRef.current === 'right' ? ENEMY_MOVE_SPEED : -ENEMY_MOVE_SPEED;
-      enemyRef.current = enemyRef.current.map(e => e.isExploding ? e : { ...e, x: e.x + xOffset, y: e.y + yOffset });
     }
 
     const enemiesAfterUpdate = [];
-    for (let i = 0; i < enemyRef.current.length; i++) {
-      const enemy = enemyRef.current[i];
-      if (enemy.isExploding) {
-        enemy.explosionTimer--;
-        if (enemy.explosionTimer > 0) enemiesAfterUpdate.push(enemy);
-        continue;
-      }
-      if (isColliding(enemy, dogBox)) {
-        setLives(prevLives => {
-          const newLives = prevLives - 1;
-          if (newLives < 0) return 0;
-          if (newLives === 0) {
+    enemyRef.current.forEach(enemy => {
+        if (enemy.isExploding) {
+            enemy.explosionTimer--;
+            if (enemy.explosionTimer > 0) enemiesAfterUpdate.push(enemy);
+            return;
+        }
+
+        if (isColliding(enemy, dogBox)) {
+            handleGameOver(); // Se un nemico tocca il cane, è game over
+            return;
+        }
+
+        if (enemy.y + enemy.height >= SCREEN_HEIGHT - DOG_HEIGHT) {
             handleGameOver();
-          } else {
-            lifeAudio.current?.replayAsync();
-            startShakeAnimation(shakeAnimation);
-          }
-          return newLives;
-        });
-        createExplosionAnimation(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2);
-        enemy.isExploding = true; enemy.explosionTimer = 10;
-      }
-      if (enemy.y + enemy.height >= SCREEN_HEIGHT - DOG_HEIGHT) { handleGameOver(); return; }
-      enemiesAfterUpdate.push(enemy);
-    }
+            return;
+        }
+        enemiesAfterUpdate.push(enemy);
+    });
     enemyRef.current = enemiesAfterUpdate;
 
     poopRef.current = poopRef.current.map(p => ({ ...p, y: p.y - 6, x: p.x + (p.dx || 0) })).filter(p => p.y > -POOP_HEIGHT);
     const poopsThatMissed = [];
     poopRef.current.forEach(poop => {
       let poopHitSomething = false;
-      enemyRef.current.forEach((enemy) => {
-        if (!poopHitSomething && !enemy.isExploding && isColliding(poop, enemy)) {
-          poopHitSomething = true;
-          explosionAudio.current?.replayAsync();
-          setScore(prevScore => prevScore + 10);
-          createExplosionAnimation(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2, enemy.width, enemy.height);
-          enemy.isExploding = true; enemy.explosionTimer = 10;
-        }
-      });
-      if (!poopHitSomething) { poopsThatMissed.push(poop); }
+      const currentEnemies = [...enemyRef.current];
+      for(let i = 0; i < currentEnemies.length; i++) {
+          let enemy = currentEnemies[i];
+          if (!enemy.isExploding && isColliding(poop, enemy)) {
+              poopHitSomething = true;
+              explosionAudio.current?.replayAsync();
+              setScore(prevScore => prevScore + 10);
+              createExplosionAnimation(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2, enemy.width, enemy.height);
+              enemy.isExploding = true; 
+              enemy.explosionTimer = 10;
+              break; 
+          }
+      }
+      if (!poopHitSomething) poopsThatMissed.push(poop);
     });
     poopRef.current = poopsThatMissed;
+    
     setTick(t => t + 1);
   };
 
@@ -380,25 +383,23 @@ export default function App() {
     Animated.timing(scaleAnim, { toValue: 1.5, duration: 200, useNativeDriver: true }).start();
     Animated.timing(opacityAnim, { toValue: 0, duration: 200, useNativeDriver: true, delay: 100 }).start(() => {
       explosionsRef.current = explosionsRef.current.filter(exp => exp.id !== newExplosion.id);
-      setTick(t => t + 1);
     });
   };
 
   const isColliding = (o1, o2) => o1.x < o2.x + o2.width && o1.x + o1.width > o2.x && o1.y < o2.y + o2.height && o1.y + o1.height > o2.y;
 
-  // --- MODIFICA 2: SEMPLIFICARE handleGameOver ---
   const handleGameOver = () => {
-    if (isGameOver) return; // Evita chiamate multiple
+    if (isGameOver) return;
+    setIsPaused(false);
     setIsPoweredUp(false);
     powerUpRef.current = null;
-    console.log("App.js - handleGameOver: GAME OVER!");
-    setIsGameOver(true); // Imposta lo stato e lascia che l'useEffect faccia il resto
+    setIsGameOver(true);
     gameOverAudio.current?.replayAsync();
     shakeAnimation.setValue(0);
     Animated.parallel([
       Animated.timing(gameOverScreenAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
       Animated.timing(dogOpacityAnimation, { toValue: 0, duration: 400, useNativeDriver: true }),
-    ]).start(); // Rimuoviamo il callback da qui
+    ]).start();
   };
 
   const resetGame = () => {
@@ -413,6 +414,7 @@ export default function App() {
     setIsGameOver(false);
     setIsExited(false);
     setStarted(false);
+    setIsPaused(false);
     setIsLevelTransitioning(false);
     setIsLevelReady(false);
     setIsPoweredUp(false);
@@ -427,7 +429,10 @@ export default function App() {
     setShowLeaderboard(false);
   };
 
+  const togglePause = () => setIsPaused(prev => !prev);
+
   const exitGame = () => {
+    setIsPaused(false);
     setIsExited(true);
     setStarted(false);
     Animated.timing(exitedScreenAnim, { toValue: 1, duration: 500, useNativeDriver: true }).start();
@@ -439,7 +444,8 @@ export default function App() {
       setStarted(true);
     });
   };
-
+  
+  // --- CORREZIONE LOGICA LEADERBOARD ---
   const handleShowLeaderboardFromIntro = useCallback(() => {
     setShowIntro(false);
     setShowLeaderboard(true);
@@ -447,6 +453,11 @@ export default function App() {
 
   if (!fontsLoaded) return (<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'black' }}><Text style={{ color: 'white', fontSize: 20 }}>Caricamento...</Text></View>);
 
+  // --- CORREZIONE LOGICA DI RENDERING ---
+  // Invece di tanti `if` separati, usiamo una logica più chiara.
+  if (showLeaderboard) {
+    return (<LeaderboardScreen score={score} onRestartGame={resetGame} />);
+  }
   if (showIntro) {
     return (
       <Animated.View style={{ flex: 1, opacity: introScreenAnim }}>
@@ -455,21 +466,13 @@ export default function App() {
     );
   }
 
-  // --- MODIFICA 3: SEMPLIFICARE LA LOGICA DI VISUALIZZAZIONE ---
-  // Ora `showLeaderboard` è la fonte di verità, che venga da intro o da game over.
-  if (showLeaderboard) {
-    // Se la leaderboard viene mostrata dopo un game over, il punteggio sarà > 0.
-    // Se viene da intro, App.js passa score=0.
-    return (<LeaderboardScreen score={score} onRestartGame={resetGame} />);
-  }
-
+  // Se non siamo né in intro né in leaderboard, mostriamo il gioco o gli overlay
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'black' }}>
       <GameLoop onUpdate={onUpdate}>
         <Animated.View style={{ flex: 1, transform: [{ translateX: shakeAnimation }] }}>
           <Image source={levelData.backgroundImage} style={baseStyles.background} resizeMode="cover" />
           {powerUpRef.current && (<Animated.Image source={powerUpImage} style={{ position: 'absolute', left: powerUpRef.current.x, top: powerUpRef.current.y, width: POWERUP_SIZE, height: POWERUP_SIZE, transform: [{ rotate: `${powerUpRef.current.rotation}deg` }] }} />)}
-
           {!isExited && !isLevelTransitioning && (
               <>
                 <Animated.Image source={dogImage} style={[ baseStyles.dog, { left: dogX, opacity: dogOpacityAnimation, transform: [{ scale: dogScaleAnimation }, { translateX: shakeAnimation }] } ]} resizeMode="contain" />
@@ -499,7 +502,9 @@ export default function App() {
                 <Text style={[baseStyles.scoreText, { fontFamily: 'PressStart2P' }]}>Punteggio: {score}</Text>
               </View>
               <View style={baseStyles.topIconsContainer}>
-                <TouchableOpacity onPress={exitGame} style={baseStyles.topIconButton}><MaterialCommunityIcons name="exit-to-app" size={30} color="white" /></TouchableOpacity>
+                <TouchableOpacity onPress={togglePause} style={baseStyles.topIconButton}>
+                  <MaterialCommunityIcons name="pause-circle-outline" size={30} color="white" />
+                </TouchableOpacity>
                 <TouchableOpacity onPress={forceNextLevel} style={baseStyles.topIconButton}>
                   <MaterialCommunityIcons name="skip-next" size={30} color="white" />
                 </TouchableOpacity>
@@ -509,15 +514,26 @@ export default function App() {
         </Animated.View>
       </GameLoop>
 
-      {started && !isGameOver && !isExited && !isLevelTransitioning && (
+      {started && !isGameOver && !isExited && !isLevelTransitioning && !isPaused &&(
         <View style={baseStyles.bottomControlsContainer} {...panResponder.panHandlers}>
           <View style={baseStyles.moveArea} /><View style={baseStyles.fireArea}><View style={baseStyles.fireButton}><Text style={[baseStyles.fireButtonText, { fontFamily: 'PressStart2P' }]}>FIRE</Text></View></View>
+        </View>
+      )}
+      
+      {isPaused && (
+        <View style={baseStyles.overlayContainer}>
+          <Text style={[baseStyles.gameOverText, {fontFamily: 'PressStart2P', fontSize: PAUSE_TITLE_FONT_SIZE}]}>PAUSA</Text>
+          <TouchableOpacity onPress={togglePause} style={[baseStyles.restartButton, {paddingVertical: PAUSE_BUTTON_PADDING_V, paddingHorizontal: PAUSE_BUTTON_PADDING_H}]}>
+            <Text style={[baseStyles.restartButtonText, { fontFamily: 'PressStart2P', fontSize: PAUSE_BUTTON_FONT_SIZE }]}>RIPRENDI</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={exitGame} style={[baseStyles.restartButton, {marginTop: 20, backgroundColor: '#800', paddingVertical: PAUSE_BUTTON_PADDING_V, paddingHorizontal: PAUSE_BUTTON_PADDING_H}]}>
+            <Text style={[baseStyles.restartButtonText, { fontFamily: 'PressStart2P', fontSize: PAUSE_BUTTON_FONT_SIZE }]}>ESCI</Text>
+          </TouchableOpacity>
         </View>
       )}
 
       {isLevelTransitioning && !showWinScreen && (<Animated.View style={[baseStyles.overlayContainer, { opacity: levelTransitionAnim }]}><Text style={[baseStyles.gameOverText, { fontFamily: 'PressStart2P' }]}>Livello {currentLevel} Completato!</Text><Text style={[baseStyles.finalScoreText, { fontFamily: 'PressStart2P' }]}>Punteggio: {score}</Text></Animated.View>)}
       
-      {/* Visualizza l'overlay di Game Over solo quando isGameOver è true ma la leaderboard non è ancora pronta */}
       {isGameOver && !showLeaderboard && (
           <Animated.View style={[baseStyles.overlayContainer, { opacity: gameOverScreenAnim }]}>
               <Text style={[baseStyles.gameOverText, { fontFamily: 'PressStart2P' }]}>Game Over</Text>
