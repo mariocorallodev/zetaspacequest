@@ -14,9 +14,9 @@ export const level1Data = {
   sidekickName: "RAGU'", // Aggiungi il nome del sidekick qui
   
   // Asset specifici per questo livello
-  backgroundImage: require('../assets/background2.png'),
+  backgroundImage: require('../assets/bg.jpg'),
   enemyImage: require('../assets/enemy.png'),
-  backgroundMusicFile: require('../assets/music.mp3'),
+  backgroundMusicFile: require('../assets/music2.mp3'),
 
   // Configurazione della griglia dei nemici
   enemyRows: 3,

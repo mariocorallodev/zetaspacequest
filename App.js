@@ -26,6 +26,8 @@ import { level4Data } from './levels/level4';
 import { level5Data } from './levels/level5';
 import { level6Data } from './levels/level6';
 import { level7Data } from './levels/level7';
+import { level8Data } from './levels/level8';
+import { level9Data } from './levels/level9';
 
 // --- Importa la funzione di gestione dello sparo potenziato ---
 import { handlePoweredUpFire } from './PowerUpManager';
@@ -33,7 +35,7 @@ import { handlePoweredUpFire } from './PowerUpManager';
 import { startShakeAnimation } from './utils/Animations';
 import { useLevelEffects } from './utils/bossShakeAnimation';
 
-const allLevels = [level1Data, level2Data, level3Data, level4Data, level5Data, level6Data, level7Data];
+const allLevels = [level1Data, level2Data, level3Data, level4Data, level5Data, level6Data, level7Data, level8Data, level9Data];
 const START_LEVEL = 1;
 
 // --- COSTANTI DI GIOCO ---
@@ -199,7 +201,14 @@ export default function App() {
       if(started && !isPaused && !isGameOver && !isLevelTransitioning && !powerUpRef.current) {
         const delay = Math.random() * 3000 + 3000;
         powerUpTimer = setTimeout(() => {
-          powerUpRef.current = { x: Math.random() * (SCREEN_WIDTH - POWERUP_SIZE), y: -POWERUP_SIZE, rotation: 0 };
+          const HORIZONTAL_MARGIN = 40; // margine di sicurezza laterale
+
+powerUpRef.current = {
+  x: HORIZONTAL_MARGIN + Math.random() * (SCREEN_WIDTH - POWERUP_SIZE - 2 * HORIZONTAL_MARGIN),
+  y: -POWERUP_SIZE,
+  rotation: 0
+};
+
           schedulePowerUp();
         }, delay);
       }
@@ -256,7 +265,7 @@ export default function App() {
     const { enemyRows, enemyCols, enemySpacing } = levelData;
     for (let row = 0; row < enemyRows; row++) {
       for (let col = 0; col < enemyCols; col++) {
-        newEnemies.push({ id: `enemy-${row}-${col}`, x: col * (ENEMY_WIDTH + enemySpacing) + 20, y: row * (ENEMY_HEIGHT + enemySpacing) + 50, isExploding: false, explosionTimer: 0, width: ENEMY_WIDTH, height: ENEMY_HEIGHT });
+        newEnemies.push({ id: `enemy-${row}-${col}`, x: col * (ENEMY_WIDTH + enemySpacing) + 20, y: row * (ENEMY_HEIGHT + enemySpacing) + 100, isExploding: false, explosionTimer: 0, width: ENEMY_WIDTH, height: ENEMY_HEIGHT });
       }
     }
     enemyRef.current = newEnemies;
@@ -497,16 +506,16 @@ export default function App() {
             <>
               <View style={baseStyles.topInfoContainer}>
                 <View style={baseStyles.livesContainer}>
-                  {[...Array(lives)].map((_, i) => (<MaterialCommunityIcons key={`heart-${i}`} name="heart" size={24} color="red" />))}
+                  {[...Array(lives)].map((_, i) => (<MaterialCommunityIcons key={`heart-${i}`} name="heart" size={30} color="red" />))}
                 </View>
-                <Text style={[baseStyles.scoreText, { fontFamily: 'PressStart2P' }]}>Punteggio: {score}</Text>
+                <Text style={[baseStyles.scoreText, { fontFamily: 'PressStart2P' }]}>Score: {score}</Text>
               </View>
               <View style={baseStyles.topIconsContainer}>
                 <TouchableOpacity onPress={togglePause} style={baseStyles.topIconButton}>
-                  <MaterialCommunityIcons name="pause-circle-outline" size={30} color="white" />
+                  <MaterialCommunityIcons name="pause-circle-outline" size={26} color="white" />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={forceNextLevel} style={baseStyles.topIconButton}>
-                  <MaterialCommunityIcons name="skip-next" size={30} color="white" />
+                  <MaterialCommunityIcons name="skip-next" size={26} color="white" />
                 </TouchableOpacity>
               </View>
             </>

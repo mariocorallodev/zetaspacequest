@@ -8,12 +8,12 @@ import { useFonts, PressStart2P_400Regular } from '@expo-google-fonts/press-star
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-const titleImage = require('../assets/title.png');
+const titleImage = require('../assets/splash.png');
 
 // --- MODIFICATO: Aggiunta la prop onShowLeaderboard ---
 export default function IntroScreen({ onFinish, onShowLeaderboard }) {
   const opacity = new Animated.Value(0);
-  const scale = new Animated.Value(0.6);
+  const scale = new Animated.Value(0.1);
   const startButtonOpacity = new Animated.Value(0);
   // --- NUOVO: Opacity per il pulsante Top Scores ---
   const topScoresButtonOpacity = new Animated.Value(0);
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 2,
     borderColor: 'white',
-    shadowColor: 'lime',
+    shadowColor: 'white',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 1,
     shadowRadius: 10,
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
   },
   startButtonText: {
     color: 'white',
-    fontSize: 24,
+    fontSize: 12,
     textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
     textShadowOffset: { width: 1, height: 1 },
@@ -159,8 +159,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: 'cyan', // Un colore diverso, ad esempio ciano
-    shadowColor: 'cyan', // Glow ciano
+    borderColor: 'white', // Un colore diverso, ad esempio ciano
+    shadowColor: 'white', // Glow ciano
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 1,
     shadowRadius: 10,
@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
   },
   topScoresButtonText: {
     color: 'white',
-    fontSize: 20, // Leggermente più piccolo per differenziare
+    fontSize: 10, // Leggermente più piccolo per differenziare
     textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
     textShadowOffset: { width: 1, height: 1 },

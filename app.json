@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "zeta_shit_quest_v1",
+    "name": "zeta_space_quest",
     "slug": "snack-67aa79bb-352c-4e69-a491-bb22ab6ada66",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/dog.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/enemy2.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -17,7 +17,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/hook.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true

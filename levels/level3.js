@@ -14,9 +14,9 @@ export const level3Data = {
   sidekickName: "PANDA",
 
   // Asset specifici per questo livello
-  backgroundImage: require('../assets/background.png'),
+  backgroundImage: require('../assets/background2.png'),
   enemyImage: require('../assets/lupo.png'), 
-  backgroundMusicFile: require('../assets/boss2.mp3'), 
+  backgroundMusicFile: require('../assets/boss3.mp3'), 
 
   // Configurazione della griglia più difficile
   enemyRows: 4,

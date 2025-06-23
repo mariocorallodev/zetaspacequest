@@ -15,15 +15,15 @@ export const level2Data = {
   sidekickName: "BLU", // Aggiungi il nome del sidekick qui
 
   // Asset specifici per questo livello
-  backgroundImage: require('../assets/background2.png'), // Potrebbe essere background3.png
+  backgroundImage: require('../assets/bg.jpg'), // Potrebbe essere background3.png
   enemyImage: require('../assets/enemy2.png'), // Potrebbe essere enemy2.png
-  backgroundMusicFile: require('../assets/music2.mp3'), // Potrebbe essere music2.mp3
+  backgroundMusicFile: require('../assets/blu.mp3'), // Potrebbe essere music2.mp3
 
-  // Configurazione della griglia più difficile
-  enemyRows: 4,
-  enemyCols: 7,
-  enemySpacing: 10,
+  // Configurazione della griglia dei nemici
+  enemyRows: 3,
+  enemyCols: 6,
+  enemySpacing: 15,
 
-  // Nemici con una velocità diversa
-  enemyMoveInterval: 40, // Un valore più ALTO significa nemici più LENTI
+  // Velocità di movimento dei nemici
+  enemyMoveInterval: 90, // Si muovono ogni 30 tick (più basso = più veloce)
 };

@@ -19,26 +19,27 @@ const leaderboardStyles = StyleSheet.create({
     padding: 20,
   },
   title: {
-    color: 'lime', // Colore verde neon per il tema retro
-    fontSize: 28,
-    marginBottom: 20,
+    color: 'white', // Colore verde neon per il tema retro
+    fontSize: 20,
+    marginBottom: 10,
+    marginTop: 20,
     textShadowColor: 'rgba(0, 255, 0, 0.75)', // Effetto glow
     textShadowOffset: { width: 0, height: 0 },
     textShadowRadius: 8,
     textAlign: 'center',
   },
-  subtitle: {
+  subtitle: {  // Colore Punteggio
     color: 'white',
-    fontSize: 18,
+    fontSize: 14,
     marginBottom: 10,
     textAlign: 'center',
   },
   input: {
     backgroundColor: 'rgba(255, 255, 255, 0.1)', // Campo input semitrasparente
     color: 'white',
-    fontSize: 20,
+    fontSize: 14,
     borderWidth: 2,
-    borderColor: 'lime', // Bordo verde neon
+    borderColor: 'white', // Bordo verde neon
     borderRadius: 8,
     paddingVertical: 10,
     paddingHorizontal: 15,
@@ -49,22 +50,22 @@ const leaderboardStyles = StyleSheet.create({
     textTransform: 'uppercase', // Retro: nomi tutti maiuscoli
   },
   button: {
-    paddingVertical: 12,
+    paddingVertical: 10,
     paddingHorizontal: 30,
     backgroundColor: 'transparent',
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: 'cyan', // Pulsanti blu neon
-    shadowColor: 'cyan',
+    borderColor: 'white', // Pulsante salva
+    shadowColor: 'white',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 1,
     shadowRadius: 10,
     elevation: 8,
-    marginBottom: 15,
+    marginBottom: 10,
   },
-  buttonText: {
+  buttonText: {   // Pulsante gioca ancora
     color: 'white',
-    fontSize: 18,
+    fontSize: 12,
     textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
     textShadowOffset: { width: 1, height: 1 },
@@ -78,8 +79,8 @@ const leaderboardStyles = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
     borderWidth: 2,
-    borderColor: 'purple', // Bordo viola neon
-    shadowColor: 'purple',
+    borderColor: 'white', // Bordo viola neon
+    shadowColor: 'white',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 1,
     shadowRadius: 8,
@@ -90,13 +91,13 @@ const leaderboardStyles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: 'grey',
+    borderBottomColor: 'white',
     marginBottom: 5,
   },
   headerText: {
-    color: 'yellow', // Testo intestazione giallo neon
-    fontSize: 16,
-    fontWeight: 'bold',
+    color: 'white', // Testo pos nome punti
+    fontSize: 12,
+    fontWeight: 'regular',
     flex: 1,
     textAlign: 'center',
   },
@@ -109,12 +110,12 @@ const leaderboardStyles = StyleSheet.create({
   },
   scoreText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 10,
     flex: 1,
     textAlign: 'center',
   },
   noScoresText: {
-    color: 'grey',
+    color: 'white',
     fontSize: 16,
     textAlign: 'center',
     paddingVertical: 20,
@@ -196,7 +197,7 @@ export default function LeaderboardScreen({ score, onRestartGame }) {
   if (!fontsLoaded) {
     return (
       <View style={leaderboardStyles.container}>
-        <Text style={leaderboardStyles.subtitle}>Caricamento font...</Text>
+        <Text style={leaderboardStyles.subtitle}>Caricamento</Text>
       </View>
     );
   }
@@ -211,14 +212,14 @@ export default function LeaderboardScreen({ score, onRestartGame }) {
           LEADERBOARD
         </Text>
         <Text style={[leaderboardStyles.subtitle, { fontFamily: 'PressStart2P' }]}>
-          Il tuo punteggio: {score}
+          Punteggio: {score}
         </Text>
 
         {!scoreSaved ? (
           <>
             <TextInput
               style={[leaderboardStyles.input, { fontFamily: 'PressStart2P' }]}
-              placeholder="Inserisci il tuo nome (max 3)"
+              placeholder="Nick (max 3)"
               placeholderTextColor="rgba(255,255,255,0.5)"
               value={playerName}
               onChangeText={(text) => setPlayerName(text.slice(0, 3))} // Limita a 3 caratteri
@@ -232,7 +233,7 @@ export default function LeaderboardScreen({ score, onRestartGame }) {
               disabled={loading}
             >
               <Text style={[leaderboardStyles.buttonText, { fontFamily: 'PressStart2P' }]}>
-                {loading ? 'Salvataggio...' : 'SALVA PUNTEGGIO'}
+                {loading ? 'Salvataggio...' : 'SALVA'}
               </Text>
             </TouchableOpacity>
           </>
@@ -242,7 +243,7 @@ export default function LeaderboardScreen({ score, onRestartGame }) {
           </Text>
         )}
 
-        <Text style={[leaderboardStyles.subtitle, { fontFamily: 'PressStart2P', marginTop: 30 }]}>
+        <Text style={[leaderboardStyles.subtitle, { fontFamily: 'PressStart2P', marginTop: 14 }]}>
           TOP 10
         </Text>
         <View style={leaderboardStyles.leaderboardContainer}>
@@ -279,7 +280,7 @@ export default function LeaderboardScreen({ score, onRestartGame }) {
 
         <TouchableOpacity
           onPress={onRestartGame}
-          style={[leaderboardStyles.button, { marginTop: 30, borderColor: 'lime', shadowColor: 'lime' }]}
+          style={[leaderboardStyles.button, { marginTop: 30, borderColor: 'white', shadowColor: 'white' }]}
         >
           <Text style={[leaderboardStyles.buttonText, { fontFamily: 'PressStart2P' }]}>
             GIOCA ANCORA
