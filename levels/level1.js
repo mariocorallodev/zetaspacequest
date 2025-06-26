@@ -5,7 +5,7 @@ export const level1Data = {
   level: 1,
   
   // --- NUOVO: Immagine del compagno che appare con il power-up ---
-  sidekickImage: require('../assets/ragu.png'),
+  sidekickImage: require('../assets/img/sk/ragu.png'),
 
   // --- NUOVO: Dimensione del compagno per questo livello ---
   sidekickSize: 200, // Puoi aumentare o ridurre la dimensione del compagno (es. 40, 60, 100)

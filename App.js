@@ -28,6 +28,8 @@ import { level6Data } from './levels/level6';
 import { level7Data } from './levels/level7';
 import { level8Data } from './levels/level8';
 import { level9Data } from './levels/level9';
+import { level10Data } from './levels/level10';
+import { level11Data } from './levels/level11';
 
 // --- Importa la funzione di gestione dello sparo potenziato ---
 import { handlePoweredUpFire } from './PowerUpManager';
@@ -35,7 +37,7 @@ import { handlePoweredUpFire } from './PowerUpManager';
 import { startShakeAnimation } from './utils/Animations';
 import { useLevelEffects } from './utils/bossShakeAnimation';
 
-const allLevels = [level1Data, level2Data, level3Data, level4Data, level5Data, level6Data, level7Data, level8Data, level9Data];
+const allLevels = [level1Data, level2Data, level3Data, level4Data, level5Data, level6Data, level7Data, level8Data, level9Data, level10Data, level11Data];
 const START_LEVEL = 1;
 
 // --- COSTANTI DI GIOCO ---
@@ -485,15 +487,40 @@ powerUpRef.current = {
           {!isExited && !isLevelTransitioning && (
               <>
                 <Animated.Image source={dogImage} style={[ baseStyles.dog, { left: dogX, opacity: dogOpacityAnimation, transform: [{ scale: dogScaleAnimation }, { translateX: shakeAnimation }] } ]} resizeMode="contain" />
-                {isPoweredUp && levelData.sidekickImage && (
-                  <>
-                    <Image source={levelData.sidekickImage} style={{ position: 'absolute', left: dogX - 60, bottom: 100, width: levelData.sidekickSize || DOG_WIDTH, height: levelData.sidekickSize || DOG_HEIGHT }} resizeMode="contain" />
+                {isPoweredUp && (
+                  <View style={{ position: 'absolute', left: dogX - 60, bottom: 100 }}>
+                    {levelData.sidekickComponent ? ( // Se esiste sidekickComponent, renderizzalo
+                      levelData.sidekickComponent() // Chiama la funzione per ottenere il componente JSX
+                    ) : levelData.sidekickImage ? ( // Altrimenti, se esiste sidekickImage, renderizza l'immagine
+                      <Image 
+                        source={levelData.sidekickImage} 
+                        style={{ 
+                          width: levelData.sidekickSize || DOG_WIDTH, 
+                          height: levelData.sidekickSize || DOG_HEIGHT, 
+                          resizeMode: 'contain' 
+                        }} 
+                      />
+                    ) : null}
+
                     {levelData.sidekickName && (
-                      <Animated.Text style={[ baseStyles.sidekickNameText, { fontFamily: 'PressStart2P', position: 'absolute', bottom: SIDEKICK_NAME_Y_OFFSET, left: dogX - 60 + (levelData.sidekickSize || DOG_WIDTH) / 2 - (levelData.sidekickName.length * (SIDEKICK_NAME_FONT_SIZE / 2)), opacity: sidekickNameOpacityAnim, transform: [{ scale: sidekickNameScaleAnim }] }]} >
+                      <Animated.Text 
+                        style={[ 
+                          baseStyles.sidekickNameText, 
+                          { 
+                            fontFamily: 'PressStart2P', 
+                            position: 'absolute', 
+                            // Centra il nome rispetto al sidekick, che ora è nel View
+                            left: (levelData.sidekickSize || DOG_WIDTH) / 6 - (levelData.sidekickName.length * (SIDEKICK_NAME_FONT_SIZE / 2) / 2), 
+                            bottom: SIDEKICK_NAME_Y_OFFSET, 
+                            opacity: sidekickNameOpacityAnim, 
+                            transform: [{ scale: sidekickNameScaleAnim }] 
+                          }
+                        ]} 
+                      >
                         {levelData.sidekickName}
                       </Animated.Text>
                     )}
-                  </>
+                  </View>
                 )}
               </>
           )}

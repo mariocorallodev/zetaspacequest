@@ -5,7 +5,7 @@ export const level9Data = {
   level: 9,
   
   // --- NUOVO: Immagine del compagno per questo livello ---
-  sidekickImage: require('../assets/olimpia.png'),
+  sidekickImage: require('../assets/img/sk/olimpia.png'),
   
   // --- NUOVO: Dimensione del compagno per questo livello ---
   sidekickSize: 250, // Puoi aumentare o ridurre la dimensione del compagno (es. 40, 60, 100)

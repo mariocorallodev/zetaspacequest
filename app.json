@@ -17,7 +17,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/hook.png",
+        "foregroundImage": "./assets/dog.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true

@@ -4,35 +4,26 @@
 export const level3Data = {
   level: 3,
   
-  // --- Immagine del compagno per questo livello ---
-  sidekickImage: require('../assets/panda.png'),
+  // --- NUOVO: Immagine del compagno per questo livello ---
+  sidekickImage: require('../assets/img/sk/panda.png'),
   
-  // --- Dimensione del compagno per questo livello ---
-  sidekickSize: 180,
+  // --- NUOVO: Dimensione del compagno per questo livello ---
+  sidekickSize: 120, // Puoi aumentare o ridurre la dimensione del compagno (es. 40, 60, 100)
 
-  // --- Nome del compagno per questo livello ---
-  sidekickName: "PANDA",
+
+    // --- NUOVO: Nome del compagno per questo livello ---
+  sidekickName: "PANDA", // Aggiungi il nome del sidekick qui
 
   // Asset specifici per questo livello
-  backgroundImage: require('../assets/background2.png'),
+  backgroundImage: require('../assets/bg.jpg'), // Potrebbe essere background3.png
   enemyImage: require('../assets/lupo.png'), 
-  backgroundMusicFile: require('../assets/boss3.mp3'), 
+  backgroundMusicFile: require('../assets/music.mp3'), 
 
   // Configurazione della griglia più difficile
   enemyRows: 4,
-  enemyCols: 9,
-  enemySpacing: 0,
+  enemyCols: 7,
+  enemySpacing: 10,
 
   // Nemici con una velocità diversa
-  enemyMoveInterval: 200,
-
-  // --- MODIFICA CORRETTIVA ---
-  // Aggiungiamo l'oggetto `levelEffects` per "accendere" il tremolio.
-  // Ora App.js leggerà questa configurazione e attiverà l'effetto.
-  levelEffects: {
-    shake: {
-      interval: 480, // Tremolio ogni 480 tick (circa 8 secondi)
-      intensity: 20,  // Forza del tremolio
-    }
-  }
+  enemyMoveInterval: 60, // Un valore più ALTO significa nemici più LENTI
 };
