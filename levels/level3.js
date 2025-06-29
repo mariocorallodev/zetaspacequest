@@ -8,7 +8,7 @@ export const level3Data = {
   sidekickImage: require('../assets/img/sk/panda.png'),
   
   // --- NUOVO: Dimensione del compagno per questo livello ---
-  sidekickSize: 120, // Puoi aumentare o ridurre la dimensione del compagno (es. 40, 60, 100)
+  sidekickSize: 140, // Puoi aumentare o ridurre la dimensione del compagno (es. 40, 60, 100)
 
 
     // --- NUOVO: Nome del compagno per questo livello ---

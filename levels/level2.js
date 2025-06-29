@@ -9,9 +9,8 @@ export const level2Data = {
 
   // --- NUOVO: Dimensione del compagno per questo livello ---
   sidekickSize: 180, // Puoi aumentare o ridurre la dimensione del compagno (es. 40, 60, 100)
-  
 
-    // --- NUOVO: Nome del compagno per questo livello ---
+  // --- NUOVO: Nome del compagno per questo livello ---
   sidekickName: "BLU", // Aggiungi il nome del sidekick qui
 
   // Asset specifici per questo livello

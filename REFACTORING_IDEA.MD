@@ -34,16 +34,16 @@ import { level12Data } from './levels/level12';
 import { level13Data } from './levels/level13';
 import { level14Data } from './levels/level14';
 import { level15Data } from './levels/level15';
-import { level16Data } from './levels/level16';
-import { level17Data } from './levels/level17';
-import { level18Data } from './levels/level18';
-import { level19Data } from './levels/level19';
-import { level20Data } from './levels/level20';
-import { level21Data } from './levels/level21';
-import { level22Data } from './levels/level22';
-import { level23Data } from './levels/level23';
-import { level24Data } from './levels/level24';
-import { level25Data } from './levels/level25';
+import { level16Data } = require('./levels/level16');
+import { level17Data } = require('./levels/level17');
+import { level18Data } = require('./levels/level18');
+import { level19Data } = require('./levels/level19');
+import { level20Data } = require('./levels/level20');
+import { level21Data } = require('./levels/level21');
+import { level22Data } = require('./levels/level22');
+import { level23Data } = require('./levels/level23');
+import { level24Data } = require('./levels/level24');
+import { level25Data } = require('./levels/level25');
 // --- Importa la funzione di gestione dello sparo potenziato ---
 import { handlePoweredUpFire } from './PowerUpManager';
 // --- Importa la funzione di animazione del tremolio ---
@@ -53,7 +53,12 @@ import { useLevelEffects } from './utils/bossShakeAnimation';
 const allLevels = [level1Data, level2Data, level3Data, level4Data, level5Data, level6Data, level7Data, level8Data, level9Data, level10Data, level11Data, level12Data, level13Data, level14Data, level15Data, level16Data, level17Data, level18Data, level19Data, level20Data, level21Data, level22Data, level23Data, level24Data, level25Data];
 const START_LEVEL = 3;
 
-// --- COSTANTI DI GIOCO ---
+// =================================================================
+// Refactoring Priority: Ref0 - Costanti Globali
+// Azione: Spostare tutte queste costanti in un file separato (es. 'constants/GameConstants.js')
+// Motivazione: Rendono il codice più leggibile, centralizzano i valori e evitano duplicazioni.
+// Dipendenza: Nessuna, è un passo iniziale e sicuro.
+// =================================================================
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const DOG_WIDTH = 80;
 const DOG_HEIGHT = 80;
@@ -74,6 +79,8 @@ const PAUSE_BUTTON_PADDING_V = 15;
 const PAUSE_BUTTON_PADDING_H = 30;
 
 // --- ASSET GENERICI ---
+// Questi asset possono essere importati direttamente nei componenti che li usano,
+// o se sono veramente "globali" e usati da tanti, lasciati qui o in un file di asset centralizzato.
 const dogImage = require('./assets/zeta2.png');
 const poopImage = require('./assets/poop.png');
 const poopSound = require('./assets/poop.mp3');
@@ -85,6 +92,12 @@ const powerUpImage = require('./assets/power.png');
 const powerUpSoundFile = require('./assets/powerup.mp3');
 
 export default function App() {
+  // =================================================================
+  // Refactoring Priority: Ref1 - Stati del Gioco
+  // Azione: Spostare tutti questi stati e i loro setter in un custom hook (es. 'hooks/useGameState.js' o 'hooks/useGameLogic.js').
+  // Motivazione: Centralizza la gestione dello stato del gioco, rendendo App.js un componente più "presentazionale".
+  // Dipendenza: Molto alta con il GameLoop e le funzioni di aggiornamento. Richiede un'attenta migrazione.
+  // =================================================================
   const [showIntro, setShowIntro] = useState(true);
   const [started, setStarted] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
@@ -100,9 +113,14 @@ export default function App() {
   const [isPoweredUp, setIsPoweredUp] = useState(false);
   const [showWinScreen, setShowWinScreen] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
-  // Nuovi stati per l'effetto aura
-  const [showPowerUpAura, setShowPowerUpAura] = useState(false);
+  const [showPowerUpAura, setShowPowerUpAura] = useState(false); // Nuovi stati per l'effetto aura
 
+  // =================================================================
+  // Refactoring Priority: Ref1 - Riferimenti (Refs) e Animazioni
+  // Azione: Spostare questi useRef e i relativi Animated.Value in un custom hook (es. 'hooks/useGameAssets.js' o insieme agli stati in 'hooks/useGameLogic.js').
+  // Motivazione: Questi sono direttamente correlati allo stato e alla logica di gioco.
+  // Dipendenza: Forte con le funzioni di aggiornamento del gioco e i componenti di rendering.
+  // =================================================================
   const sidekickNameScaleAnim = useRef(new Animated.Value(0)).current;
   const sidekickNameOpacityAnim = useRef(new Animated.Value(0)).current;
   const livesRef = useRef(INITIAL_LIVES);
@@ -117,7 +135,7 @@ export default function App() {
   const enemyDirectionRef = useRef('right');
   const enemyMoveCounter = useRef(0);
   const lastFireTimeRef = useRef(0);
-  const [, setTick] = useState(0);
+  const [, setTick] = useState(0); // Questo potrebbe essere rimosso se onUpdate non lo usa più
   const poopAudio = useRef(null);
   const fartAudio = useRef(null);
   const explosionAudio = useRef(null);
@@ -132,15 +150,20 @@ export default function App() {
   const exitedScreenAnim = useRef(new Animated.Value(0)).current;
   const introScreenAnim = useRef(new Animated.Value(1)).current;
   const levelTransitionAnim = useRef(new Animated.Value(0)).current;
-  // Animazione per l'aura del power-up
   const powerUpAuraScale = useRef(new Animated.Value(0)).current;
   const powerUpAuraOpacity = useRef(new Animated.Value(1)).current;
 
   const [fontsLoaded] = useFonts({ 'PressStart2P': PressStart2P_400Regular });
-  const latestHandleFireRef = useRef();
-  
-  const updateLevelEffects = useLevelEffects(levelData, shakeAnimation);
+  const latestHandleFireRef = useRef(); // Usato per PanResponder, può essere internalizzato nel PlayerControls o useGameLogic.
 
+  const updateLevelEffects = useLevelEffects(levelData, shakeAnimation); // Questo hook è già esterno, ok.
+
+  // =================================================================
+  // Refactoring Priority: Ref2 - Logica di Navigazione Schermate
+  // Azione: La logica `useEffect` per la leaderboard. Può essere spostata in un custom hook per la navigazione (es. `hooks/useGameNavigation.js`).
+  // Motivazione: Separa la logica di transizione tra schermate dalla logica di gioco principale.
+  // Dipendenza: Dipende dagli stati `isGameOver`, `showWinScreen`, `showLeaderboard`.
+  // =================================================================
   useEffect(() => {
     if ((isGameOver || showWinScreen) && !showLeaderboard) {
       const timer = setTimeout(() => {
@@ -150,11 +173,18 @@ export default function App() {
     }
   }, [isGameOver, showWinScreen, showLeaderboard]);
 
+  // =================================================================
+  // Refactoring Priority: Ref1 - Funzioni di Gioco (Sparo)
+  // Azione: La funzione `handleFire` è una delle funzioni di gioco centrali. Dovrebbe essere parte del custom hook `useGameLogic`.
+  // Motivazione: Fa parte della logica di input e interazione del giocatore.
+  // Dipendenza: Dipende da `poopRef`, `dogXRef`, `isPoweredUp`, `levelData`, audioRefs.
+  // =================================================================
   const handleFire = useCallback(() => {
     const now = Date.now();
     if (now - lastFireTimeRef.current < FIRE_COOLDOWN) return;
     lastFireTimeRef.current = now;
     const currentDogX = dogXRef.current;
+    // Sarà necessario passare i parametri ENEMY_WIDTH, ENEMY_HEIGHT a handlePoweredUpFire o renderli costanti globali.
     handlePoweredUpFire(poopRef, currentDogX, isPoweredUp, levelData);
     poopCount.current++;
     if (poopCount.current % 10 === 0) {
@@ -165,9 +195,15 @@ export default function App() {
   }, [isPoweredUp, levelData]);
 
   useEffect(() => {
-    latestHandleFireRef.current = handleFire;
+    latestHandleFireRef.current = handleFire; // Questo accoppiamento può essere evitato se PanResponder è nel custom hook.
   }, [handleFire]);
 
+  // =================================================================
+  // Refactoring Priority: Ref1 - Controlli del Giocatore (PanResponder)
+  // Azione: Spostare `panResponder` e tutta la sua logica (onStartShouldSetPanResponder, onPanResponderMove, ecc.) in un componente 'PlayerControls.js'
+  // Motivazione: Isola l'interazione utente specifica per il movimento e lo sparo.
+  // Dipendenza: Richiede `handleFire` e `setDogX` come props o accessibili tramite contesto/hook.
+  // =================================================================
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
@@ -190,6 +226,12 @@ export default function App() {
     })
   ).current;
 
+  // =================================================================
+  // Refactoring Priority: Ref1 - Caricamento Suoni Generici
+  // Azione: Spostare questo `useEffect` in un custom hook per la gestione audio (es. 'hooks/useGameSounds.js' o integrato in `useGameLogic`).
+  // Motivazione: Centralizza il caricamento e lo scaricamento delle risorse audio.
+  // Dipendenza: Riferimenti audio (poopAudio, fartAudio, etc.).
+  // =================================================================
   useEffect(() => {
     const loadGenericSounds = async () => {
       Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
@@ -215,6 +257,12 @@ export default function App() {
     };
   }, []);
 
+  // =================================================================
+  // Refactoring Priority: Ref1 - Generazione Power-up
+  // Azione: Spostare questo `useEffect` in un custom hook (es. 'hooks/usePowerUpManager.js' o integrato in `useGameLogic`).
+  // Motivazione: Isola la logica di spawn dei power-up.
+  // Dipendenza: `started`, `isPaused`, `isGameOver`, `isLevelTransitioning`, `powerUpRef`.
+  // =================================================================
   useEffect(() => {
     let powerUpTimer;
     const schedulePowerUp = () => {
@@ -223,11 +271,11 @@ export default function App() {
         powerUpTimer = setTimeout(() => {
           const HORIZONTAL_MARGIN = 40; // margine di sicurezza laterale
 
-powerUpRef.current = {
-  x: HORIZONTAL_MARGIN + Math.random() * (SCREEN_WIDTH - POWERUP_SIZE - 2 * HORIZONTAL_MARGIN),
-  y: -POWERUP_SIZE,
-  rotation: 0
-};
+          powerUpRef.current = {
+            x: HORIZONTAL_MARGIN + Math.random() * (SCREEN_WIDTH - POWERUP_SIZE - 2 * HORIZONTAL_MARGIN),
+            y: -POWERUP_SIZE,
+            rotation: 0
+          };
 
           schedulePowerUp();
         }, delay);
@@ -237,6 +285,12 @@ powerUpRef.current = {
     return () => clearTimeout(powerUpTimer);
   }, [started, isPaused, isGameOver, isLevelTransitioning]);
 
+  // =================================================================
+  // Refactoring Priority: Ref1 - Gestione Musica di Sottofondo
+  // Azione: Spostare questo `useEffect` in un custom hook per la gestione della musica (es. 'hooks/useBackgroundMusic.js' o 'hooks/useGameSounds.js').
+  // Motivazione: Separa la logica audio complessa dalla logica di gioco principale.
+  // Dipendenza: `backgroundMusic` ref, `started`, `isPaused`, `isGameOver`, `isExited`, `isLevelTransitioning`, `levelData`, `isMuted`.
+  // =================================================================
   useEffect(() => {
     const manageMusic = async () => {
       if (!backgroundMusic.current) return;
@@ -260,8 +314,20 @@ powerUpRef.current = {
     manageMusic();
   }, [started, isPaused, isGameOver, isExited, isLevelTransitioning, levelData, isMuted]);
 
+  // =================================================================
+  // Refactoring Priority: Ref3 - Sincronizzazione Ref
+  // Azione: Questi sono piccoli effetti, possono rimanere nel custom hook principale di GameLogic se creato.
+  // Motivazione: Sono piccoli aggiornamenti di ref per la coerenza dei dati.
+  // Dipendenza: Gli stati `lives` e `dogX`.
+  // =================================================================
   useEffect(() => { livesRef.current = lives; }, [lives]);
 
+  // =================================================================
+  // Refactoring Priority: Ref2 - Animazione Nome Sidekick
+  // Azione: Spostare questo `useEffect` e le relative animazioni in un componente `SidekickRenderer.js` o un custom hook specifico per il sidekick.
+  // Motivazione: Isola la logica di rendering e animazione del sidekick.
+  // Dipendenza: `isPoweredUp`, `levelData`, animazioni del nome.
+  // =================================================================
   useEffect(() => {
     if (isPoweredUp && levelData.sidekickName) {
         sidekickNameScaleAnim.setValue(SIDEKICK_NAME_INITIAL_SCALE);
@@ -280,6 +346,12 @@ powerUpRef.current = {
       }
   }, [isPoweredUp, levelData]);
 
+  // =================================================================
+  // Refactoring Priority: Ref1 - Inizializzazione Nemici
+  // Azione: Spostare `initializeEnemies` e il `useEffect` relativo in un custom hook (es. 'hooks/useGameLogic.js' o 'utils/EnemyManager.js' come funzione pura).
+  // Motivazione: Parte cruciale della logica di inizio livello e gestione nemici.
+  // Dipendenza: `levelData`, `enemyRef`, `enemyDirectionRef`, `enemyMoveCounter`.
+  // =================================================================
   const initializeEnemies = useCallback(() => {
     const newEnemies = [];
     const { enemyRows, enemyCols, enemySpacing } = levelData;
@@ -294,6 +366,12 @@ powerUpRef.current = {
 
   useEffect(() => { if (started && !isGameOver && !isExited && !isLevelReady) { initializeEnemies(); } }, [started, isGameOver, isExited, isLevelReady, initializeEnemies]);
 
+  // =================================================================
+  // Refactoring Priority: Ref1 - Gestione Completamento Livello
+  // Azione: Spostare `handleLevelComplete` in un custom hook (es. 'hooks/useGameLogic.js').
+  // Motivazione: Logica centrale per la progressione del gioco.
+  // Dipendenza: `isLevelTransitioning`, `setIsPoweredUp`, `powerUpRef`, `currentLevel`, `allLevels`, `setIsLevelReady`, `setCurrentLevel`, `setLevelData`, `dogXRef`, `setDogX`, `poopRef`, animazioni di transizione.
+  // =================================================================
   const handleLevelComplete = useCallback(() => {
     if (isLevelTransitioning) return;
     setIsPoweredUp(false);
@@ -315,11 +393,29 @@ powerUpRef.current = {
     });
   }, [currentLevel, isLevelTransitioning]);
 
+  // =================================================================
+  // Refactoring Priority: Ref2 - Funzioni di Controllo Semplici
+  // Azione: Spostare `forceNextLevel`, `togglePause`, `exitGame`, `handleIntroFinish`, `handleShowLeaderboardFromIntro` in un custom hook (es. `hooks/useGameControls.js` o `useGameLogic`).
+  // Motivazione: Funzioni di interazione utente dirette che modificano lo stato del gioco o navigano.
+  // Dipendenza: Stati di gioco e animazioni.
+  // =================================================================
   const forceNextLevel = () => {
     if (isLevelTransitioning || isGameOver) return;
     enemyRef.current = [];
   };
 
+  // =================================================================
+  // Refactoring Priority: Ref1 - Ciclo di Aggiornamento del Gioco (`onUpdate`)
+  // Azione: **Questo è il blocco più grande e complesso da spostare.** Deve essere interamente spostato in un custom hook (`hooks/useGameLogic.js`).
+  // Motivazione: Contiene quasi tutta la logica di gameplay: movimento nemici, collisioni, gestione proiettili, power-up, game over.
+  // Dipendenza: Dipende da quasi tutti gli stati, ref, e funzioni di supporto.
+  // Passaggi:
+  //   1. Crea `hooks/useGameLogic.js`.
+  //   2. Sposta `onUpdate` al suo interno.
+  //   3. Rendi tutti gli stati e ref necessari disponibili all'interno del hook (usando `useState`, `useRef` all'interno del hook e restituendoli).
+  //   4. Rendi tutte le funzioni di supporto (es. `isColliding`, `createExplosionAnimation`, `handleGameOver`) *interni* al hook o importale da altri `utils/`.
+  //   5. Infine, in `App.js`, chiama `const { onUpdate, ...altriStatiEFunzioni } = useGameLogic(...)`
+  // =================================================================
   const onUpdate = () => {
     if (isPaused) return;
     updateLevelEffects();
@@ -403,18 +499,24 @@ powerUpRef.current = {
               explosionAudio.current?.replayAsync();
               setScore(prevScore => prevScore + 10);
               createExplosionAnimation(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2, enemy.width, enemy.height);
-              enemy.isExploding = true; 
+              enemy.isExploding = true;
               enemy.explosionTimer = 10;
-              break; 
+              break;
           }
       }
       if (!poopHitSomething) poopsThatMissed.push(poop);
     });
     poopRef.current = poopsThatMissed;
-    
+
     setTick(t => t + 1);
   };
 
+  // =================================================================
+  // Refactoring Priority: Ref1 - Funzioni Helper di Gioco
+  // Azione: Spostare `createExplosionAnimation` e `isColliding` in un file `utils/GameUtils.js` o nel custom hook `useGameLogic`.
+  // Motivazione: Sono funzioni di utilità pura o legate alla logica di gameplay.
+  // Dipendenza: Riferimenti `explosionsRef`, animazioni.
+  // =================================================================
   const createExplosionAnimation = (x, y, width, height) => {
     const scaleAnim = new Animated.Value(0);
     const opacityAnim = new Animated.Value(1);
@@ -428,6 +530,12 @@ powerUpRef.current = {
 
   const isColliding = (o1, o2) => o1.x < o2.x + o2.width && o1.x + o1.width > o2.x && o1.y < o2.y + o2.height && o1.y + o1.height > o2.y;
 
+  // =================================================================
+  // Refactoring Priority: Ref1 - Gestione Game Over / Reset / Exit
+  // Azione: Spostare `handleGameOver` e `resetGame` in un custom hook (`hooks/useGameLogic.js`).
+  // Motivazione: Logica centrale per la gestione degli stati finali del gioco e il reset.
+  // Dipendenza: Molti stati, ref, audio e animazioni.
+  // =================================================================
   const handleGameOver = () => {
     if (isGameOver) return;
     setIsPaused(false);
@@ -473,6 +581,11 @@ powerUpRef.current = {
     setShowPowerUpAura(false);
   };
 
+  // =================================================================
+  // Refactoring Priority: Ref2 - Funzioni di Controllo Semplici (continuazione)
+  // Azione: Spostare queste funzioni nel custom hook di GameLogic o un hook di controllo.
+  // Motivazione: Simile a `forceNextLevel`.
+  // =================================================================
   const togglePause = () => setIsPaused(prev => !prev);
 
   const exitGame = () => {
@@ -488,7 +601,7 @@ powerUpRef.current = {
       setStarted(true);
     });
   };
-  
+
   // --- CORREZIONE LOGICA LEADERBOARD ---
   const handleShowLeaderboardFromIntro = useCallback(() => {
     setShowIntro(false);
@@ -497,8 +610,12 @@ powerUpRef.current = {
 
   if (!fontsLoaded) return (<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'black' }}><Text style={{ color: 'white', fontSize: 20 }}>Caricamento...</Text></View>);
 
-  // --- CORREZIONE LOGICA DI RENDERING ---
-  // Invece di tanti `if` separati, usiamo una logica più chiara.
+  // =================================================================
+  // Refactoring Priority: Ref2 - Rendering Condizionale Schermate
+  // Azione: Questo blocco è la logica di "router" delle schermate principali. Può rimanere in `App.js` o essere leggermente incapsulato in un `GameScreenManager.js` ma la sua importanza qui è come punto di controllo principale.
+  // Motivazione: Decidi quale schermata mostrare. App.js è il punto di ingresso principale per questo.
+  // Dipendenza: `showLeaderboard`, `showIntro`, `score`, `resetGame`, `handleIntroFinish`, `handleShowLeaderboardFromIntro`.
+  // =================================================================
   if (showLeaderboard) {
     return (<LeaderboardScreen score={score} onRestartGame={resetGame} />);
   }
@@ -513,6 +630,14 @@ powerUpRef.current = {
   // Se non siamo né in intro né in leaderboard, mostriamo il gioco o gli overlay
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'black' }}>
+      {/* =================================================================
+      // Refactoring Priority: Ref1 - Il GameLoop e il suo Contenuto Visivo Principale
+      // Azione: Il `GameLoop` e tutto il suo contenuto interno (sfondo, cane, power-up, proiettili, nemici, esplosioni)
+      // possono essere incapsulati in un componente `GameCanvas.js` o `GameScene.js`.
+      // Motivazione: Isola il rendering di tutti gli elementi di gioco che si muovono o interagiscono.
+      // Dipendenza: Tutti i ref e gli stati visivi (dogX, poopRef, enemyRef, explosionsRef, powerUpRef, animazioni).
+      // Questo richiede che tutti questi dati siano passati come props o gestiti internamente dal nuovo componente.
+      // ================================================================= */}
       <GameLoop onUpdate={onUpdate}>
         <Animated.View style={{ flex: 1, transform: [{ translateX: shakeAnimation }] }}>
           <Image source={levelData.backgroundImage} style={baseStyles.background} resizeMode="cover" />
@@ -541,30 +666,30 @@ powerUpRef.current = {
                     {levelData.sidekickComponent ? ( // Se esiste sidekickComponent, renderizzalo
                       levelData.sidekickComponent() // Chiama la funzione per ottenere il componente JSX
                     ) : levelData.sidekickImage ? ( // Altrimenti, se esiste sidekickImage, renderizza l'immagine
-                      <Image 
-                        source={levelData.sidekickImage} 
-                        style={{ 
-                          width: levelData.sidekickSize || DOG_WIDTH, 
-                          height: levelData.sidekickSize || DOG_HEIGHT, 
-                          resizeMode: 'contain' 
-                        }} 
+                      <Image
+                        source={levelData.sidekickImage}
+                        style={{
+                          width: levelData.sidekickSize || DOG_WIDTH,
+                          height: levelData.sidekickSize || DOG_HEIGHT,
+                          resizeMode: 'contain'
+                        }}
                       />
                     ) : null}
 
                     {levelData.sidekickName && (
-                      <Animated.Text 
-                        style={[ 
-                          baseStyles.sidekickNameText, 
-                          { 
-                            fontFamily: 'PressStart2P', 
-                            position: 'absolute', 
+                      <Animated.Text
+                        style={[
+                          baseStyles.sidekickNameText,
+                          {
+                            fontFamily: 'PressStart2P',
+                            position: 'absolute',
                             // Centra il nome rispetto al sidekick, che ora è nel View
-                            left: (levelData.sidekickSize || DOG_WIDTH) / 6 - (levelData.sidekickName.length * (SIDEKICK_NAME_FONT_SIZE / 2) / 2), 
-                            bottom: SIDEKICK_NAME_Y_OFFSET, 
-                            opacity: sidekickNameOpacityAnim, 
-                            transform: [{ scale: sidekickNameScaleAnim }] 
+                            left: (levelData.sidekickSize || DOG_WIDTH) / 6 - (levelData.sidekickName.length * (SIDEKICK_NAME_FONT_SIZE / 2) / 2),
+                            bottom: SIDEKICK_NAME_Y_OFFSET,
+                            opacity: sidekickNameOpacityAnim,
+                            transform: [{ scale: sidekickNameScaleAnim }]
                           }
-                        ]} 
+                        ]}
                       >
                         {levelData.sidekickName}
                       </Animated.Text>
@@ -578,6 +703,12 @@ powerUpRef.current = {
           {enemyRef.current.map((e) => (<Image key={e.id} source={levelData.enemyImage} style={[{ width: e.width || ENEMY_WIDTH, height: e.height || ENEMY_HEIGHT }, baseStyles.enemy, { left: e.x, top: e.y, opacity: e.isExploding ? 0 : 1 }]} />))}
           {explosionsRef.current.map(exp => ( <Animated.View key={`explosion-${exp.id}`} style={{ position: 'absolute', left: exp.x - (exp.width || ENEMY_WIDTH) / 2, top: exp.y - (exp.height || ENEMY_HEIGHT) / 2, width: exp.width || ENEMY_WIDTH, height: exp.height || ENEMY_HEIGHT, borderRadius: (exp.width || ENEMY_WIDTH) / 2, backgroundColor: 'orange', opacity: exp.opacityAnim, transform: [{ scale: exp.scaleAnim }], }} /> ))}
 
+          {/* =================================================================
+          // Refactoring Priority: Ref2 - UI di Gioco (HUD)
+          // Azione: Spostare il container delle vite e del punteggio (`topInfoContainer`) e i pulsanti in alto (`topIconsContainer`) in un componente `GameHUD.js`.
+          // Motivazione: Isola gli elementi dell'interfaccia utente durante il gameplay.
+          // Dipendenza: `lives`, `score`, `togglePause`, `forceNextLevel`.
+          // ================================================================= */}
           {started && !isGameOver && !isExited && (
             <>
               <View style={baseStyles.topInfoContainer}>
@@ -599,12 +730,24 @@ powerUpRef.current = {
         </Animated.View>
       </GameLoop>
 
+      {/* =================================================================
+      // Refactoring Priority: Ref1 - Controlli di Input (Area di Movimento/Sparo)
+      // Azione: Spostare il `bottomControlsContainer` e i suoi elementi (`moveArea`, `fireArea`, `fireButton`) in un componente `PlayerControls.js`.
+      // Motivazione: Isola l'area di input del giocatore.
+      // Dipendenza: `panResponder.panHandlers`, `started`, `isGameOver`, `isExited`, `isLevelTransitioning`, `isPaused`.
+      // ================================================================= */}
       {started && !isGameOver && !isExited && !isLevelTransitioning && !isPaused &&(
         <View style={baseStyles.bottomControlsContainer} {...panResponder.panHandlers}>
           <View style={baseStyles.moveArea} /><View style={baseStyles.fireArea}><View style={baseStyles.fireButton}><Text style={[baseStyles.fireButtonText, { fontFamily: 'PressStart2P' }]}>FIRE</Text></View></View>
         </View>
       )}
-      
+
+      {/* =================================================================
+      // Refactoring Priority: Ref2 - Overlay Generici (Pausa, Game Over, Uscita, Transizione Livello)
+      // Azione: Spostare tutti questi blocchi condizionali di rendering degli overlay in un componente `GameOverlays.js`.
+      // Motivazione: Centralizza e semplifica il rendering delle schermate di stato.
+      // Dipendenza: `isPaused`, `togglePause`, `exitGame`, `isLevelTransitioning`, `showWinScreen`, `currentLevel`, `score`, `isGameOver`, `gameOverScreenAnim`, `isExited`, `exitedScreenAnim`, `resetGame`.
+      // ================================================================= */}
       {isPaused && (
         <View style={baseStyles.overlayContainer}>
           <Text style={[baseStyles.gameOverText, {fontFamily: 'PressStart2P', fontSize: PAUSE_TITLE_FONT_SIZE}]}>PAUSA</Text>
@@ -613,12 +756,12 @@ powerUpRef.current = {
           </TouchableOpacity>
           <TouchableOpacity onPress={exitGame} style={[baseStyles.restartButton, {marginTop: 20, backgroundColor: '#800', paddingVertical: PAUSE_BUTTON_PADDING_V, paddingHorizontal: PAUSE_BUTTON_PADDING_H}]}>
             <Text style={[baseStyles.restartButtonText, { fontFamily: 'PressStart2P', fontSize: PAUSE_BUTTON_FONT_SIZE }]}>ESCI</Text>
-          </TouchableOpacity>
+          </Text>
         </View>
       )}
 
       {isLevelTransitioning && !showWinScreen && (<Animated.View style={[baseStyles.overlayContainer, { opacity: levelTransitionAnim }]}><Text style={[baseStyles.gameOverText, { fontFamily: 'PressStart2P' }]}>Livello {currentLevel} Completato!</Text><Text style={[baseStyles.finalScoreText, { fontFamily: 'PressStart2P' }]}>Punteggio: {score}</Text></Animated.View>)}
-      
+
       {isGameOver && !showLeaderboard && (
           <Animated.View style={[baseStyles.overlayContainer, { opacity: gameOverScreenAnim }]}>
               <Text style={[baseStyles.gameOverText, { fontFamily: 'PressStart2P' }]}>Game Over</Text>
