@@ -1,23 +1,23 @@
-// levels/level8.js
+// levels/level3.js
 
 // Esporta un oggetto di configurazione per il Livello 3
 export const level8Data = {
   level: 8,
-  
+
   // --- NUOVO: Immagine del compagno per questo livello ---
-  sidekickImage: require('../assets/img/sk/hook.png'),
+  sidekickImage: require('../assets/img/sk/tea.png'),
   
   // --- NUOVO: Dimensione del compagno per questo livello ---
   sidekickSize: 200, // Puoi aumentare o ridurre la dimensione del compagno (es. 40, 60, 100)
 
 
     // --- NUOVO: Nome del compagno per questo livello ---
-  sidekickName: "HOOK", // Aggiungi il nome del sidekick qui
+  sidekickName: "TEA", // Aggiungi il nome del sidekick qui
 
   // Asset specifici per questo livello
   backgroundImage: require('../assets/bg.jpg'), // Potrebbe essere background3.png
-  enemyImage: require('../assets/enemy.png'), 
-  backgroundMusicFile: require('../assets/hook.mp3'), 
+  enemyImage: require('../assets/lupo.png'), 
+  backgroundMusicFile: require('../assets/tea.mp3'), 
 
   // Configurazione della griglia più difficile
   enemyRows: 4,

@@ -1,11 +1,11 @@
 // levels/level11.js
 
 // Importa il componente animato del sidekick
-import AnimatedDog from '../components/AnimatedDog2';
+import AnimatedDog from '../components/AnimatedDog';
 
 // Esporta un oggetto di configurazione per il Livello 3
-export const level10Data = {
-  level: 10,
+export const level12Data = {
+  level: 12,
 
   // --- Componente animato del compagno per questo livello ---
   // QUESTA È LA RIGA DA MODIFICARE PER LA DIMENSIONE DEL CANE ANIMATO!
@@ -20,7 +20,7 @@ export const level10Data = {
   sidekickSize: 480,
 
   // --- Nome del compagno per questo livello ---
-  sidekickName: "JASPER",
+  sidekickName: "ABI",
 
   // Asset specifici per questo livello
   backgroundImage: require('../assets/background2.png'),

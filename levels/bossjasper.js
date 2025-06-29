@@ -4,8 +4,8 @@
 import AnimatedDog from '../components/AnimatedDog2';
 
 // Esporta un oggetto di configurazione per il Livello 3
-export const level10Data = {
-  level: 10,
+export const level11Data = {
+  level: 11,
 
   // --- Componente animato del compagno per questo livello ---
   // QUESTA È LA RIGA DA MODIFICARE PER LA DIMENSIONE DEL CANE ANIMATO!

@@ -30,6 +30,7 @@ import { level8Data } from './levels/level8';
 import { level9Data } from './levels/level9';
 import { level10Data } from './levels/level10';
 import { level11Data } from './levels/level11';
+import { level12Data } from './levels/level12';
 
 // --- Importa la funzione di gestione dello sparo potenziato ---
 import { handlePoweredUpFire } from './PowerUpManager';
@@ -37,7 +38,7 @@ import { handlePoweredUpFire } from './PowerUpManager';
 import { startShakeAnimation } from './utils/Animations';
 import { useLevelEffects } from './utils/bossShakeAnimation';
 
-const allLevels = [level1Data, level2Data, level3Data, level4Data, level5Data, level6Data, level7Data, level8Data, level9Data, level10Data, level11Data];
+const allLevels = [level1Data, level2Data, level3Data, level4Data, level5Data, level6Data, level7Data, level8Data, level9Data, level10Data, level11Data, level12Data];
 const START_LEVEL = 1;
 
 // --- COSTANTI DI GIOCO ---
@@ -87,6 +88,8 @@ export default function App() {
   const [isPoweredUp, setIsPoweredUp] = useState(false);
   const [showWinScreen, setShowWinScreen] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  // Nuovi stati per l'effetto aura
+  const [showPowerUpAura, setShowPowerUpAura] = useState(false);
 
   const sidekickNameScaleAnim = useRef(new Animated.Value(0)).current;
   const sidekickNameOpacityAnim = useRef(new Animated.Value(0)).current;
@@ -117,6 +120,9 @@ export default function App() {
   const exitedScreenAnim = useRef(new Animated.Value(0)).current;
   const introScreenAnim = useRef(new Animated.Value(1)).current;
   const levelTransitionAnim = useRef(new Animated.Value(0)).current;
+  // Animazione per l'aura del power-up
+  const powerUpAuraScale = useRef(new Animated.Value(0)).current;
+  const powerUpAuraOpacity = useRef(new Animated.Value(1)).current;
 
   const [fontsLoaded] = useFonts({ 'PressStart2P': PressStart2P_400Regular });
   const latestHandleFireRef = useRef();
@@ -317,6 +323,14 @@ powerUpRef.current = {
         setIsPoweredUp(true);
         startShakeAnimation(shakeAnimation);
         powerUpRef.current = null;
+        // Trigger the power-up aura animation
+        setShowPowerUpAura(true);
+        powerUpAuraScale.setValue(0);
+        powerUpAuraOpacity.setValue(1);
+        Animated.parallel([
+          Animated.timing(powerUpAuraScale, { toValue: 10, duration: 400, useNativeDriver: true }),
+          Animated.timing(powerUpAuraOpacity, { toValue: 0, duration: 400, delay: 100, useNativeDriver: true })
+        ]).start(() => setShowPowerUpAura(false));
       }
     }
 
@@ -438,6 +452,10 @@ powerUpRef.current = {
     shakeAnimation.setValue(0);
     setShowIntro(true);
     setShowLeaderboard(false);
+    // Reset aura animation values
+    powerUpAuraScale.setValue(0);
+    powerUpAuraOpacity.setValue(1);
+    setShowPowerUpAura(false);
   };
 
   const togglePause = () => setIsPaused(prev => !prev);
@@ -487,6 +505,22 @@ powerUpRef.current = {
           {!isExited && !isLevelTransitioning && (
               <>
                 <Animated.Image source={dogImage} style={[ baseStyles.dog, { left: dogX, opacity: dogOpacityAnimation, transform: [{ scale: dogScaleAnimation }, { translateX: shakeAnimation }] } ]} resizeMode="contain" />
+                {/* Power-up Aura Effect */}
+                {showPowerUpAura && (
+                  <Animated.View
+                    style={{
+                      position: 'absolute',
+                      left: dogX + DOG_WIDTH / 2 - (DOG_WIDTH * 1.5) / 2, // Centra l'aura sul cane
+                      top: SCREEN_HEIGHT - 140 + DOG_HEIGHT / 2 - (DOG_HEIGHT * 1.5) / 2, // Centra l'aura sul cane
+                      width: DOG_WIDTH * 1.5, // Dimensione iniziale dell'aura
+                      height: DOG_HEIGHT * 1.5, // Dimensione iniziale dell'aura
+                      borderRadius: (DOG_WIDTH * 1.5) / 2, // Rende il cerchio
+                      backgroundColor: 'rgba(255, 255, 0, 0.7)', // Giallo trasparente
+                      opacity: powerUpAuraOpacity,
+                      transform: [{ scale: powerUpAuraScale }],
+                    }}
+                  />
+                )}
                 {isPoweredUp && (
                   <View style={{ position: 'absolute', left: dogX - 60, bottom: 100 }}>
                     {levelData.sidekickComponent ? ( // Se esiste sidekickComponent, renderizzalo
