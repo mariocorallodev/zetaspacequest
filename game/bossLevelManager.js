@@ -5,7 +5,7 @@ const BOSS_WIDTH = 180;
 const BOSS_HEIGHT = 180;
 const BOSS_START_X = SCREEN_WIDTH / 2 - BOSS_WIDTH / 2;
 const BOSS_START_Y = 120;
-const BOSS_MAX_HEALTH = 30;
+const BOSS_MAX_HEALTH = 60;
 
 export function createBoss(enemyImage) {
   return {
@@ -17,16 +17,15 @@ export function createBoss(enemyImage) {
     maxHealth: BOSS_MAX_HEALTH,
     image: enemyImage,
     direction: 1,
-    speed: 4,
+    speed: 2,
     isHit: false,
     hitTimer: 0,
     hitAnimPhase: 0,
   };
 }
 
-export function updateBoss(boss, screenWidth) {
-  // Movimento orizzontale semplice
-  boss.x += boss.speed * boss.direction;
+export function updateBoss(boss, screenWidth, difficulty = 1) {
+  boss.x += (boss.speed + difficulty * 1.2) * boss.direction;
   if (boss.x <= 0 || boss.x + boss.width >= screenWidth) {
     boss.direction *= -1;
   }
@@ -96,11 +95,11 @@ export function updateBossProjectiles(projectiles, screenHeight) {
 }
 
 // Spara un nuovo proiettile dal boss
-export function bossShoot(boss) {
+export function bossShoot(boss, difficulty = 1) {
   return {
     x: boss.x + boss.width / 2 - 12,
     y: boss.y + boss.height - 10,
     size: 24,
-    speed: 8,
+    speed: 8 + difficulty * 1.5,
   };
 }

@@ -44,7 +44,7 @@ export const level10Data = {
   enemyImage: require('../assets/img/enemy/skate.png'),
   backgroundMusicFile: require('../assets/boss3.mp3'),
 
- 
+  difficulty: 1.5, // livello 10
 
   // --- MODIFICA CORRETTIVA ---
   // Aggiungiamo l'oggetto `levelEffects` per "accendere" il tremolio.

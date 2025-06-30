@@ -44,7 +44,7 @@ export const level5Data = {
   enemyImage: require('../assets/lupo.png'),
   backgroundMusicFile: require('../assets/boss3.mp3'),
 
- 
+  difficulty: 1, // livello 5
 
   // --- MODIFICA CORRETTIVA ---
   // Aggiungiamo l'oggetto `levelEffects` per "accendere" il tremolio.

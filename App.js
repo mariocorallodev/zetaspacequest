@@ -112,6 +112,7 @@ export default function App() {
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   // Nuovi stati per l'effetto aura
   const [showPowerUpAura, setShowPowerUpAura] = useState(false);
+  const [dogHit, setDogHit] = useState(false);
 
   const sidekickNameScaleAnim = useRef(new Animated.Value(0)).current;
   const sidekickNameOpacityAnim = useRef(new Animated.Value(0)).current;
@@ -145,6 +146,7 @@ export default function App() {
   // Animazione per l'aura del power-up
   const powerUpAuraScale = useRef(new Animated.Value(0)).current;
   const powerUpAuraOpacity = useRef(new Animated.Value(1)).current;
+  const dogHitAudio = useRef(null);
 
   const [fontsLoaded] = useFonts({ 'PressStart2P': PressStart2P_400Regular });
   const latestHandleFireRef = useRef();
@@ -226,6 +228,10 @@ export default function App() {
         await bossHitAudio.current.loadAsync(require('./assets/boss_hit.mp3'));
       } catch (e) {
         console.log("Audio boss_hit.mp3 non trovato.");
+      }
+      if (dogHitAudio.current == null) {
+        dogHitAudio.current = new Audio.Sound();
+        dogHitAudio.current.loadAsync(require('./assets/life.mp3'));
       }
     };
     loadGenericSounds();
@@ -362,8 +368,9 @@ powerUpRef.current = {
     if (!started || isGameOver || isExited || isLevelTransitioning || !isLevelReady) return;
 
     if (levelData.isBossLevel && bossRef.current) {
+      bossShootTimerRef.current++;
       // Movimento boss
-      levelData.bossUpdate(bossRef.current, SCREEN_WIDTH);
+      levelData.bossUpdate(bossRef.current, SCREEN_WIDTH, levelData.difficulty);
       // Colpi al boss
       const hit = levelData.bossCheckHit(bossRef.current, poopRef.current);
       if (hit) {
@@ -377,10 +384,13 @@ powerUpRef.current = {
         bossProjectilesRef.current = levelData.bossProjectilesUpdate(bossProjectilesRef.current, SCREEN_HEIGHT);
       }
       // Timer per sparo
-      bossShootTimerRef.current++;
-      if (bossShootTimerRef.current >= 90 && levelData.bossShoot) { // ogni 1.5s circa
-        bossProjectilesRef.current.push(levelData.bossShoot(bossRef.current));
+      const baseShootInterval = 900; // 15 secondi se 60fps
+      const minShootInterval = 300; // almeno 5 secondi
+      const shootInterval = Math.max(baseShootInterval / levelData.difficulty, minShootInterval);
+
+      if (bossShootTimerRef.current >= shootInterval) {
         bossShootTimerRef.current = 0;
+        bossProjectilesRef.current.push(levelData.bossShoot(bossRef.current, levelData.difficulty));
       }
       // Collisione proiettili/cane
       bossProjectilesRef.current = bossProjectilesRef.current.filter(p => {
@@ -388,6 +398,9 @@ powerUpRef.current = {
         const projBox = { x: p.x, y: p.y, width: p.size, height: p.size };
         const collides = projBox.x < dogBox.x + dogBox.width && projBox.x + projBox.width > dogBox.x && projBox.y < dogBox.y + dogBox.height && projBox.y + projBox.height > dogBox.y;
         if (collides) {
+          setDogHit(true);
+          dogHitAudio.current?.replayAsync();
+          setTimeout(() => setDogHit(false), 300);
           setLives(l => {
             const newLives = Math.max(0, l - 1);
             if (newLives <= 0) handleGameOver();
@@ -608,7 +621,7 @@ powerUpRef.current = {
                   dogImage={dogImage}
                   dogX={dogX}
                   baseStyles={baseStyles}
-                  dogOpacityAnimation={dogOpacityAnimation}
+                  dogOpacityAnimation={dogHit ? 0.3 : dogOpacityAnimation}
                   dogScaleAnimation={dogScaleAnimation}
                   shakeAnimation={shakeAnimation}
                   DOG_WIDTH={DOG_WIDTH}
