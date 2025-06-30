@@ -17,6 +17,16 @@ import IntroScreen from './screens/IntroScreen';
 import LeaderboardScreen from './screens/LeaderboardScreen';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useFonts, PressStart2P_400Regular } from '@expo-google-fonts/press-start-2p';
+import GameHUD from './components/GameHUD';
+import TopIcons from './components/TopIcons';
+import Dog from './components/Dog';
+import Enemies from './components/Enemies';
+import Poops from './components/Poops';
+import Explosions from './components/Explosions';
+import PauseOverlay from './components/PauseOverlay';
+import GameOverOverlay from './components/GameOverOverlay';
+import ExitOverlay from './components/ExitOverlay';
+import LevelCompleteOverlay from './components/LevelCompleteOverlay';
 
 // --- GESTIONE LIVELLI ---
 import { level1Data } from './levels/level1';
@@ -519,81 +529,51 @@ powerUpRef.current = {
           {powerUpRef.current && (<Animated.Image source={powerUpImage} style={{ position: 'absolute', left: powerUpRef.current.x, top: powerUpRef.current.y, width: POWERUP_SIZE, height: POWERUP_SIZE, transform: [{ rotate: `${powerUpRef.current.rotation}deg` }] }} />)}
           {!isExited && !isLevelTransitioning && (
               <>
-                <Animated.Image source={dogImage} style={[ baseStyles.dog, { left: dogX, opacity: dogOpacityAnimation, transform: [{ scale: dogScaleAnimation }, { translateX: shakeAnimation }] } ]} resizeMode="contain" />
-                {/* Power-up Aura Effect */}
-                {showPowerUpAura && (
-                  <Animated.View
-                    style={{
-                      position: 'absolute',
-                      left: dogX + DOG_WIDTH / 2 - (DOG_WIDTH * 1.5) / 2, // Centra l'aura sul cane
-                      top: SCREEN_HEIGHT - 140 + DOG_HEIGHT / 2 - (DOG_HEIGHT * 1.5) / 2, // Centra l'aura sul cane
-                      width: DOG_WIDTH * 1.5, // Dimensione iniziale dell'aura
-                      height: DOG_HEIGHT * 1.5, // Dimensione iniziale dell'aura
-                      borderRadius: (DOG_WIDTH * 1.5) / 2, // Rende il cerchio
-                      backgroundColor: 'rgba(255, 255, 0, 0.7)', // Giallo trasparente
-                      opacity: powerUpAuraOpacity,
-                      transform: [{ scale: powerUpAuraScale }],
-                    }}
-                  />
-                )}
-                {isPoweredUp && (
-                  <View style={{ position: 'absolute', left: dogX - 60, bottom: 100 }}>
-                    {levelData.sidekickComponent ? ( // Se esiste sidekickComponent, renderizzalo
-                      levelData.sidekickComponent() // Chiama la funzione per ottenere il componente JSX
-                    ) : levelData.sidekickImage ? ( // Altrimenti, se esiste sidekickImage, renderizza l'immagine
-                      <Image 
-                        source={levelData.sidekickImage} 
-                        style={{ 
-                          width: levelData.sidekickSize || DOG_WIDTH, 
-                          height: levelData.sidekickSize || DOG_HEIGHT, 
-                          resizeMode: 'contain' 
-                        }} 
-                      />
-                    ) : null}
-
-                    {levelData.sidekickName && (
-                      <Animated.Text 
-                        style={[ 
-                          baseStyles.sidekickNameText, 
-                          { 
-                            fontFamily: 'PressStart2P', 
-                            position: 'absolute', 
-                            // Centra il nome rispetto al sidekick, che ora è nel View
-                            left: (levelData.sidekickSize || DOG_WIDTH) / 6 - (levelData.sidekickName.length * (SIDEKICK_NAME_FONT_SIZE / 2) / 2), 
-                            bottom: SIDEKICK_NAME_Y_OFFSET, 
-                            opacity: sidekickNameOpacityAnim, 
-                            transform: [{ scale: sidekickNameScaleAnim }] 
-                          }
-                        ]} 
-                      >
-                        {levelData.sidekickName}
-                      </Animated.Text>
-                    )}
-                  </View>
-                )}
+                <Dog
+                  dogImage={dogImage}
+                  dogX={dogX}
+                  baseStyles={baseStyles}
+                  dogOpacityAnimation={dogOpacityAnimation}
+                  dogScaleAnimation={dogScaleAnimation}
+                  shakeAnimation={shakeAnimation}
+                  DOG_WIDTH={DOG_WIDTH}
+                  DOG_HEIGHT={DOG_HEIGHT}
+                  SCREEN_HEIGHT={SCREEN_HEIGHT}
+                  showPowerUpAura={showPowerUpAura}
+                  powerUpAuraOpacity={powerUpAuraOpacity}
+                  powerUpAuraScale={powerUpAuraScale}
+                  isPoweredUp={isPoweredUp}
+                  levelData={levelData}
+                  sidekickNameOpacityAnim={sidekickNameOpacityAnim}
+                  sidekickNameScaleAnim={sidekickNameScaleAnim}
+                  SIDEKICK_NAME_FONT_SIZE={SIDEKICK_NAME_FONT_SIZE}
+                  SIDEKICK_NAME_Y_OFFSET={SIDEKICK_NAME_Y_OFFSET}
+                />
               </>
           )}
 
-          {poopRef.current.map((p, i) => (<Image key={`poop-${i}`} source={poopImage} style={[baseStyles.poop, { left: p.x, top: p.y }]} />))}
-          {enemyRef.current.map((e) => (<Image key={e.id} source={levelData.enemyImage} style={[{ width: e.width || ENEMY_WIDTH, height: e.height || ENEMY_HEIGHT }, baseStyles.enemy, { left: e.x, top: e.y, opacity: e.isExploding ? 0 : 1 }]} />))}
-          {explosionsRef.current.map(exp => ( <Animated.View key={`explosion-${exp.id}`} style={{ position: 'absolute', left: exp.x - (exp.width || ENEMY_WIDTH) / 2, top: exp.y - (exp.height || ENEMY_HEIGHT) / 2, width: exp.width || ENEMY_WIDTH, height: exp.height || ENEMY_HEIGHT, borderRadius: (exp.width || ENEMY_WIDTH) / 2, backgroundColor: 'orange', opacity: exp.opacityAnim, transform: [{ scale: exp.scaleAnim }], }} /> ))}
+          <Poops
+            poops={poopRef.current}
+            poopImage={poopImage}
+            baseStyles={baseStyles}
+          />
+          <Enemies
+            enemies={enemyRef.current}
+            enemyImage={levelData.enemyImage}
+            baseStyles={baseStyles}
+            ENEMY_WIDTH={ENEMY_WIDTH}
+            ENEMY_HEIGHT={ENEMY_HEIGHT}
+          />
+          <Explosions
+            explosions={explosionsRef.current}
+            ENEMY_WIDTH={ENEMY_WIDTH}
+            ENEMY_HEIGHT={ENEMY_HEIGHT}
+          />
 
           {started && !isGameOver && !isExited && (
             <>
-              <View style={baseStyles.topInfoContainer}>
-                <View style={baseStyles.livesContainer}>
-                  {[...Array(lives)].map((_, i) => (<MaterialCommunityIcons key={`heart-${i}`} name="heart" size={30} color="red" />))}
-                </View>
-                <Text style={[baseStyles.scoreText, { fontFamily: 'PressStart2P' }]}>Score: {score}</Text>
-              </View>
-              <View style={baseStyles.topIconsContainer}>
-                <TouchableOpacity onPress={togglePause} style={baseStyles.topIconButton}>
-                  <MaterialCommunityIcons name="pause-circle-outline" size={26} color="white" />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={forceNextLevel} style={baseStyles.topIconButton}>
-                  <MaterialCommunityIcons name="skip-next" size={26} color="white" />
-                </TouchableOpacity>
-              </View>
+              <GameHUD lives={lives} score={score} baseStyles={baseStyles} />
+              <TopIcons onPause={togglePause} onSkip={forceNextLevel} baseStyles={baseStyles} />
             </>
           )}
         </Animated.View>
@@ -606,26 +586,40 @@ powerUpRef.current = {
       )}
       
       {isPaused && (
-        <View style={baseStyles.overlayContainer}>
-          <Text style={[baseStyles.gameOverText, {fontFamily: 'PressStart2P', fontSize: PAUSE_TITLE_FONT_SIZE}]}>PAUSA</Text>
-          <TouchableOpacity onPress={togglePause} style={[baseStyles.restartButton, {paddingVertical: PAUSE_BUTTON_PADDING_V, paddingHorizontal: PAUSE_BUTTON_PADDING_H}]}>
-            <Text style={[baseStyles.restartButtonText, { fontFamily: 'PressStart2P', fontSize: PAUSE_BUTTON_FONT_SIZE }]}>RIPRENDI</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={exitGame} style={[baseStyles.restartButton, {marginTop: 20, backgroundColor: '#800', paddingVertical: PAUSE_BUTTON_PADDING_V, paddingHorizontal: PAUSE_BUTTON_PADDING_H}]}>
-            <Text style={[baseStyles.restartButtonText, { fontFamily: 'PressStart2P', fontSize: PAUSE_BUTTON_FONT_SIZE }]}>ESCI</Text>
-          </TouchableOpacity>
-        </View>
+        <PauseOverlay
+          baseStyles={baseStyles}
+          PAUSE_TITLE_FONT_SIZE={PAUSE_TITLE_FONT_SIZE}
+          PAUSE_BUTTON_PADDING_V={PAUSE_BUTTON_PADDING_V}
+          PAUSE_BUTTON_PADDING_H={PAUSE_BUTTON_PADDING_H}
+          PAUSE_BUTTON_FONT_SIZE={PAUSE_BUTTON_FONT_SIZE}
+          togglePause={togglePause}
+          exitGame={exitGame}
+        />
       )}
 
-      {isLevelTransitioning && !showWinScreen && (<Animated.View style={[baseStyles.overlayContainer, { opacity: levelTransitionAnim }]}><Text style={[baseStyles.gameOverText, { fontFamily: 'PressStart2P' }]}>Livello {currentLevel} Completato!</Text><Text style={[baseStyles.finalScoreText, { fontFamily: 'PressStart2P' }]}>Punteggio: {score}</Text></Animated.View>)}
+      {isLevelTransitioning && !showWinScreen && (
+        <LevelCompleteOverlay
+          baseStyles={baseStyles}
+          levelTransitionAnim={levelTransitionAnim}
+          currentLevel={currentLevel}
+          score={score}
+        />
+      )}
       
       {isGameOver && !showLeaderboard && (
-          <Animated.View style={[baseStyles.overlayContainer, { opacity: gameOverScreenAnim }]}>
-              <Text style={[baseStyles.gameOverText, { fontFamily: 'PressStart2P' }]}>Game Over</Text>
-          </Animated.View>
+        <GameOverOverlay
+          baseStyles={baseStyles}
+          gameOverScreenAnim={gameOverScreenAnim}
+        />
       )}
 
-      {isExited && (<Animated.View style={[baseStyles.overlayContainer, { opacity: exitedScreenAnim }]}><Text style={[baseStyles.gameOverText, { fontFamily: 'PressStart2P' }]}>Hai interrotto il gioco</Text><TouchableOpacity onPress={resetGame} style={baseStyles.restartButton}><Text style={[baseStyles.restartButtonText, { fontFamily: 'PressStart2P' }]}>RIPROVA</Text></TouchableOpacity></Animated.View>)}
+      {isExited && (
+        <ExitOverlay
+          baseStyles={baseStyles}
+          exitedScreenAnim={exitedScreenAnim}
+          resetGame={resetGame}
+        />
+      )}
     </SafeAreaView>
   );
 }
