@@ -151,6 +151,11 @@ export default function App() {
   
   const updateLevelEffects = useLevelEffects(levelData, shakeAnimation);
 
+  const bossRef = useRef(null);
+  const bossHitAudio = useRef(null);
+  const bossProjectilesRef = useRef([]);
+  const bossShootTimerRef = useRef(0);
+
   useEffect(() => {
     if ((isGameOver || showWinScreen) && !showLeaderboard) {
       const timer = setTimeout(() => {
@@ -206,6 +211,7 @@ export default function App() {
       poopAudio.current = new Audio.Sound(); fartAudio.current = new Audio.Sound(); explosionAudio.current = new Audio.Sound();
       gameOverAudio.current = new Audio.Sound(); lifeAudio.current = new Audio.Sound(); backgroundMusic.current = new Audio.Sound();
       powerUpAudio.current = new Audio.Sound();
+      bossHitAudio.current = new Audio.Sound();
       await poopAudio.current.loadAsync(poopSound);
       await fartAudio.current.loadAsync(fartSound);
       await explosionAudio.current.loadAsync(explosionSound);
@@ -216,12 +222,18 @@ export default function App() {
       } catch (e) {
         console.log("Audio powerup.mp3 non trovato.");
       }
+      try {
+        await bossHitAudio.current.loadAsync(require('./assets/boss_hit.mp3'));
+      } catch (e) {
+        console.log("Audio boss_hit.mp3 non trovato.");
+      }
     };
     loadGenericSounds();
     return () => {
       poopAudio.current?.unloadAsync(); fartAudio.current?.unloadAsync(); explosionAudio.current?.unloadAsync();
       gameOverAudio.current?.unloadAsync(); lifeAudio.current?.unloadAsync(); backgroundMusic.current?.unloadAsync();
       powerUpAudio.current?.unloadAsync();
+      bossHitAudio.current?.unloadAsync();
     };
   }, []);
 
@@ -291,6 +303,12 @@ powerUpRef.current = {
   }, [isPoweredUp, levelData]);
 
   const initializeEnemies = useCallback(() => {
+    if (levelData.isBossLevel) {
+      bossRef.current = levelData.bossInit(levelData.enemyImage);
+      setIsLevelReady(true);
+      return;
+    }
+    // SOLO per livelli normali:
     const newEnemies = [];
     const { enemyRows, enemyCols, enemySpacing } = levelData;
     for (let row = 0; row < enemyRows; row++) {
@@ -299,7 +317,9 @@ powerUpRef.current = {
       }
     }
     enemyRef.current = newEnemies;
-    enemyDirectionRef.current = 'right'; enemyMoveCounter.current = 0; setIsLevelReady(true);
+    enemyDirectionRef.current = 'right';
+    enemyMoveCounter.current = 0;
+    setIsLevelReady(true);
   }, [levelData]);
 
   useEffect(() => { if (started && !isGameOver && !isExited && !isLevelReady) { initializeEnemies(); } }, [started, isGameOver, isExited, isLevelReady, initializeEnemies]);
@@ -330,12 +350,67 @@ powerUpRef.current = {
     enemyRef.current = [];
   };
 
+  useEffect(() => {
+    // Reset proiettili boss a ogni cambio livello
+    bossProjectilesRef.current = levelData.isBossLevel && levelData.bossProjectilesInit ? levelData.bossProjectilesInit() : [];
+    bossShootTimerRef.current = 0;
+  }, [levelData]);
+
   const onUpdate = () => {
     if (isPaused) return;
     updateLevelEffects();
     if (!started || isGameOver || isExited || isLevelTransitioning || !isLevelReady) return;
-    if (enemyRef.current.length > 0 && enemyRef.current.every(e => e.isExploding)) { enemyRef.current = []; }
-    if (enemyRef.current.length === 0) { handleLevelComplete(); return; }
+
+    if (levelData.isBossLevel && bossRef.current) {
+      // Movimento boss
+      levelData.bossUpdate(bossRef.current, SCREEN_WIDTH);
+      // Colpi al boss
+      const hit = levelData.bossCheckHit(bossRef.current, poopRef.current);
+      if (hit) {
+        bossHitAudio.current?.replayAsync();
+        poopRef.current = poopRef.current.filter(p => !p.hit);
+        setScore(prev => prev + 10);
+      }
+      // --- LOGICA PROIETTILI BOSS ---
+      // Aggiorna proiettili
+      if (levelData.bossProjectilesUpdate) {
+        bossProjectilesRef.current = levelData.bossProjectilesUpdate(bossProjectilesRef.current, SCREEN_HEIGHT);
+      }
+      // Timer per sparo
+      bossShootTimerRef.current++;
+      if (bossShootTimerRef.current >= 90 && levelData.bossShoot) { // ogni 1.5s circa
+        bossProjectilesRef.current.push(levelData.bossShoot(bossRef.current));
+        bossShootTimerRef.current = 0;
+      }
+      // Collisione proiettili/cane
+      bossProjectilesRef.current = bossProjectilesRef.current.filter(p => {
+        const dogBox = { x: dogXRef.current, y: SCREEN_HEIGHT - 140, width: DOG_WIDTH, height: DOG_HEIGHT };
+        const projBox = { x: p.x, y: p.y, width: p.size, height: p.size };
+        const collides = projBox.x < dogBox.x + dogBox.width && projBox.x + projBox.width > dogBox.x && projBox.y < dogBox.y + dogBox.height && projBox.y + projBox.height > dogBox.y;
+        if (collides) {
+          setLives(l => {
+            const newLives = Math.max(0, l - 1);
+            if (newLives <= 0) handleGameOver();
+            return newLives;
+          });
+          return false; // rimuovi proiettile
+        }
+        return true;
+      });
+      // Se il boss è morto, passa al prossimo livello
+      if (bossRef.current.health <= 0) {
+        bossRef.current = null;
+        handleLevelComplete();
+        return;
+      }
+    } else {
+      // SOLO per livelli normali:
+      if (enemyRef.current.length === 0) {
+        handleLevelComplete();
+        return;
+      }
+    }
+
     const dogBox = { x: dogXRef.current, y: SCREEN_HEIGHT - 140, width: DOG_WIDTH, height: DOG_HEIGHT };
 
     if (powerUpRef.current) {
@@ -569,6 +644,11 @@ powerUpRef.current = {
             ENEMY_WIDTH={ENEMY_WIDTH}
             ENEMY_HEIGHT={ENEMY_HEIGHT}
           />
+
+          {levelData.isBossLevel && bossRef.current && levelData.bossRender(bossRef.current)}
+          {levelData.isBossLevel && bossRef.current && levelData.bossHealthBar(bossRef.current)}
+
+          {levelData.isBossLevel && levelData.bossProjectilesRender && bossProjectilesRef.current && levelData.bossProjectilesRender(bossProjectilesRef.current)}
 
           {started && !isGameOver && !isExited && (
             <>
