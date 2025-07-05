@@ -20,7 +20,7 @@ const POOP_HEIGHT = 20;
  */
 export const handlePoweredUpFire = (poopRef, currentDogX, isPoweredUp, levelData) => {
   // DEBUG: Registra l'ingresso nella funzione e lo stato di isPoweredUp
-  console.log("PowerUpManager.js - handlePoweredUpFire chiamato. isPoweredUp:", isPoweredUp);
+  //console.log("PowerUpManager.js - handlePoweredUpFire chiamato. isPoweredUp:", isPoweredUp);
 
   // Il giocatore principale (zeta2) spara sempre un proiettile
   poopRef.current.push({
@@ -31,11 +31,11 @@ export const handlePoweredUpFire = (poopRef, currentDogX, isPoweredUp, levelData
     width: POOP_WIDTH,
     height: POOP_HEIGHT
   });
-  console.log("PowerUpManager.js - Aggiunto proiettile centrale."); // DEBUG
+  //console.log("PowerUpManager.js - Aggiunto proiettile centrale."); // DEBUG
 
   // Se il power-up è attivo, spara ulteriori proiettili
   if (isPoweredUp) {
-    console.log("PowerUpManager.js - Power-up attivo, aggiungo 2 proiettili extra."); // DEBUG
+  //  console.log("PowerUpManager.js - Power-up attivo, aggiungo 2 proiettili extra."); // DEBUG
     // Sposta il primo proiettile a sinistra del centro
     poopRef.current.push({
       x: currentDogX + DOG_WIDTH / 2 - POOP_WIDTH * 1.5, // Leggermente a sinistra

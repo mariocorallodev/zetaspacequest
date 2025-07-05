@@ -425,7 +425,12 @@ export default function App() {
 
   const startShake = () => { /* Questa funzione è ora delegata a startShakeAnimation in utils/Animations.js */ };
   const startDogHitFeedback = () => { /* Puoi usare startShakeAnimation qui se vuoi un feedback sul colpo subìto */ }; 
-  const isColliding = (o1, o2) => o1.x < o2.x + o2.width && o1.x + o1.width > o2.x && o1.y < o2.y + o2.height && o1.y + o1.height > o2.y;
+  const isColliding = (o1, o2) => {
+    if (!o1 || !o2) return false;
+    if (typeof o1.x !== 'number' || typeof o1.y !== 'number' || typeof o1.width !== 'number' || typeof o1.height !== 'number') return false;
+    if (typeof o2.x !== 'number' || typeof o2.y !== 'number' || typeof o2.width !== 'number' || typeof o2.height !== 'number') return false;
+    return o1.x < o2.x + o2.width && o1.x + o1.width > o2.x && o1.y < o2.y + o2.height && o1.y + o1.height > o2.y;
+  };
   
   const handleGameOver = () => {
     setIsPoweredUp(false);

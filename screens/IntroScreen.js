@@ -25,7 +25,7 @@ export default function IntroScreen({ onFinish, onShowLeaderboard }) {
 
   useEffect(() => {
     if (fontsLoaded) { // Assicurati che i font siano caricati prima di avviare le animazioni
-      console.log("IntroScreen.js: Font caricati, avvio animazione titolo.");
+      //console.log("IntroScreen.js: Font caricati, avvio animazione titolo.");
       Animated.parallel([
         Animated.timing(opacity, {
           toValue: 1,
@@ -38,7 +38,7 @@ export default function IntroScreen({ onFinish, onShowLeaderboard }) {
           useNativeDriver: true,
         }),
       ]).start(() => {
-        console.log("IntroScreen.js: Animazione titolo completata, mostrando START button.");
+       // console.log("IntroScreen.js: Animazione titolo completata, mostrando START button.");
         Animated.parallel([ // Esegui le animazioni dei due bottoni in parallelo
           Animated.timing(startButtonOpacity, {
             toValue: 1,
@@ -54,13 +54,13 @@ export default function IntroScreen({ onFinish, onShowLeaderboard }) {
         ]).start();
       });
     } else {
-      console.log("IntroScreen.js: Font non ancora caricati, in attesa...");
+      //console.log("IntroScreen.js: Font non ancora caricati, in attesa...");
     }
   }, [fontsLoaded]); // Dipende da fontsLoaded, riavvia quando cambia
 
   // Se i font NON sono ancora stati caricati, mostra una schermata di caricamento interna
   if (!fontsLoaded) {
-    console.log("IntroScreen.js: Font non ancora caricati, mostrando schermata di caricamento IntroScreen.");
+   // console.log("IntroScreen.js: Font non ancora caricati, mostrando schermata di caricamento IntroScreen.");
     return (
       <View style={styles.container}>
         <Text style={{ color: 'white', fontSize: 20 }}>Caricamento Intro...</Text>
@@ -86,7 +86,7 @@ export default function IntroScreen({ onFinish, onShowLeaderboard }) {
       <View style={styles.buttonsContainer}>
         <Animated.View style={[{ opacity: startButtonOpacity }]}>
           <TouchableOpacity onPress={() => {
-              console.log("IntroScreen.js: Pulsante START premuto!");
+            //  console.log("IntroScreen.js: Pulsante START premuto!");
               onFinish(); // Chiama la funzione onFinish passata da App.js
           }} style={styles.startButton}>
             <Text style={[styles.startButtonText, { fontFamily: 'PressStart2P' }]}>START</Text>
@@ -96,7 +96,7 @@ export default function IntroScreen({ onFinish, onShowLeaderboard }) {
         {/* --- NUOVO: Pulsante TOP SCORES --- */}
         <Animated.View style={[{ opacity: topScoresButtonOpacity, marginTop: 15 }]}>
           <TouchableOpacity onPress={() => {
-              console.log("IntroScreen.js: Pulsante TOP SCORES premuto!");
+          //    console.log("IntroScreen.js: Pulsante TOP SCORES premuto!");
               if (onShowLeaderboard) {
                 onShowLeaderboard(); // Chiama la nuova funzione per mostrare la leaderboard
               }

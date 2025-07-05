@@ -25,6 +25,10 @@ export function createBoss(enemyImage) {
 }
 
 export function updateBoss(boss, screenWidth, difficulty = 1) {
+  if (!boss || typeof boss.x === 'undefined' || typeof boss.width === 'undefined') {
+    console.error('Invalid boss object for update:', boss);
+    return;
+  }
   boss.x += (boss.speed + difficulty * 1.2) * boss.direction;
   if (boss.x <= 0 || boss.x + boss.width >= screenWidth) {
     boss.direction *= -1;
@@ -41,6 +45,10 @@ export function updateBoss(boss, screenWidth, difficulty = 1) {
 }
 
 export function checkBossHit(boss, poops) {
+  if (!boss || typeof boss.x === 'undefined' || typeof boss.width === 'undefined' || typeof boss.y === 'undefined' || typeof boss.height === 'undefined') {
+    console.error('Invalid boss object for hit check:', boss);
+    return false;
+  }
   let hit = false;
   poops.forEach((poop) => {
     if (
@@ -96,6 +104,10 @@ export function updateBossProjectiles(projectiles, screenHeight) {
 
 // Spara un nuovo proiettile dal boss
 export function bossShoot(boss, difficulty = 1) {
+  if (!boss || typeof boss.x === 'undefined' || typeof boss.width === 'undefined' || typeof boss.height === 'undefined') {
+    console.error('Invalid boss object for shooting:', boss);
+    return null;
+  }
   return {
     x: boss.x + boss.width / 2 - 12,
     y: boss.y + boss.height - 10,

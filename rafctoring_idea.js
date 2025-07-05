@@ -35,15 +35,15 @@ import { level13Data } from './levels/level13';
 import { level14Data } from './levels/level14';
 import { level15Data } from './levels/level15';
 import { level16Data } = require('./levels/level16');
-import { level17Data } = require('./levels/level17');
-import { level18Data } = require('./levels/level18');
-import { level19Data } = require('./levels/level19');
-import { level20Data } = require('./levels/level20');
-import { level21Data } = require('./levels/level21');
-import { level22Data } = require('./levels/level22');
-import { level23Data } = require('./levels/level23');
-import { level24Data } = require('./levels/level24');
-import { level25Data } = require('./levels/level25');
+import { level17Data } from './levels/level17';
+import { level18Data } from './levels/level18';
+import { level19Data } from './levels/level19';
+import { level20Data } from './levels/level20';
+import { level21Data } from './levels/level21';
+import { level22Data } from './levels/level22';
+import { level23Data } from './levels/level23';
+import { level24Data } from './levels/level24';
+import { level25Data } from './levels/level25';
 // --- Importa la funzione di gestione dello sparo potenziato ---
 import { handlePoweredUpFire } from './PowerUpManager';
 // --- Importa la funzione di animazione del tremolio ---
@@ -246,7 +246,7 @@ export default function App() {
       try {
         await powerUpAudio.current.loadAsync(powerUpSoundFile);
       } catch (e) {
-        console.log("Audio powerup.mp3 non trovato.");
+        //console.log("Audio powerup.mp3 non trovato.");
       }
     };
     loadGenericSounds();

@@ -61,7 +61,7 @@ import { startShakeAnimation } from './utils/Animations';
 import { useLevelEffects } from './utils/bossShakeAnimation';
 
 const allLevels = [level1Data, level2Data, level3Data, level4Data, level5Data, level6Data, level7Data, level8Data, level9Data, level10Data, level11Data, level12Data, level13Data, level14Data, level15Data, level16Data, level17Data, level18Data, level19Data, level20Data, level21Data, level22Data, level23Data, level24Data, level25Data];
-const START_LEVEL = 1;
+const START_LEVEL = 15;
 
 // --- COSTANTI DI GIOCO ---
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -342,9 +342,13 @@ powerUpRef.current = {
         } else {
           setIsLevelReady(false);
           const nextLevel = currentLevel + 1;
-          setCurrentLevel(nextLevel); setLevelData(allLevels[nextLevel - 1]);
-          dogXRef.current = SCREEN_WIDTH / 2 - DOG_WIDTH / 2; setDogX(dogXRef.current);
+          setCurrentLevel(nextLevel); 
+          setLevelData(allLevels[nextLevel - 1]);
+          dogXRef.current = SCREEN_WIDTH / 2 - DOG_WIDTH / 2; 
+          setDogX(dogXRef.current);
           poopRef.current = [];
+          // Reset delle vite ad ogni livello
+          setLives(INITIAL_LIVES);
           Animated.timing(levelTransitionAnim, { toValue: 0, duration: 500, useNativeDriver: true }).start(() => { setIsLevelTransitioning(false); });
         }
       }, 2000);
@@ -353,7 +357,14 @@ powerUpRef.current = {
 
   const forceNextLevel = () => {
     if (isLevelTransitioning || isGameOver) return;
-    enemyRef.current = [];
+    
+    if (levelData.isBossLevel) {
+      // Per livelli boss: elimina il boss
+      bossRef.current = null;
+    } else {
+      // Per livelli normali: elimina tutti i nemici
+      enemyRef.current = [];
+    }
   };
 
   useEffect(() => {

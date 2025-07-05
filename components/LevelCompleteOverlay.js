@@ -1,35 +1,42 @@
 import React from 'react';
 import { Animated, View, Text } from 'react-native';
 
-const phrases = [
-  "GREAT JOB!",
-  "LEVEL CLEARED!",
-  "YOU DID IT!",
-  "ON TO THE NEXT CHALLENGE!",
-  "IMPRESSIVE!",
-  "STAGE MASTERED!",
-  "KEEP GOING!",
-  "YOU'RE ON FIRE!",
-  "UNSTOPPABLE!",
-  "BOSS DEFEATED!"
-];
-
 export default function LevelCompleteOverlay({
   baseStyles,
   levelTransitionAnim,
   currentLevel,
-  score
+  score,
+  phrase,
+  phraseFontSize = 22,
+  phraseMarginBottom = 18,
+  levelFontSize = 18,
+  levelMarginBottom = 0,
+  scoreFontSize = 16
 }) {
-  const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
   return (
     <Animated.View style={[baseStyles.overlayContainer, { opacity: levelTransitionAnim }]}>
-      <Text style={[baseStyles.gameOverText, { fontFamily: 'PressStart2P', color: '#ffe600', marginBottom: 18, textShadowColor: '#000', textShadowOffset: {width: 2, height: 2}, textShadowRadius: 4 }]}>
-        {randomPhrase}
+      <Text style={[baseStyles.gameOverText, {
+        fontFamily: 'PressStart2P',
+        color: '#ffe600',
+        marginBottom: phraseMarginBottom,
+        fontSize: phraseFontSize,
+        textShadowColor: '#000',
+        textShadowOffset: {width: 2, height: 2},
+        textShadowRadius: 4
+      }]}>
+        {phrase}
       </Text>
-      <Text style={[baseStyles.gameOverText, { fontFamily: 'PressStart2P' }]}>
+      <Text style={[baseStyles.gameOverText, {
+        fontFamily: 'PressStart2P',
+        fontSize: levelFontSize,
+        marginBottom: levelMarginBottom
+      }]}>
          Livello {currentLevel} Completato!
       </Text>
-      <Text style={[baseStyles.finalScoreText, { fontFamily: 'PressStart2P' }]}>
+      <Text style={[baseStyles.finalScoreText, {
+        fontFamily: 'PressStart2P',
+        fontSize: scoreFontSize
+      }]}>
         Punteggio: {score}
       </Text>
     </Animated.View>

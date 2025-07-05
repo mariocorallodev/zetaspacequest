@@ -15,11 +15,11 @@ export default function SupabaseTestScreen() {
     const runSupabaseTest = async () => {
       setLoading(true);
       setTestResult('Tentativo di connessione e lettura da Supabase...');
-      console.log('SupabaseTestScreen: Avvio del test di connessione...');
+      //console.log('SupabaseTestScreen: Avvio del test di connessione...');
 
       try {
         // Test di connessione (supabaseClient.js viene importato prima)
-        console.log('SupabaseTestScreen: Client Supabase inizializzato. Tentativo di SELECT dalla tabella "zeta"...');
+        //console.log('SupabaseTestScreen: Client Supabase inizializzato. Tentativo di SELECT dalla tabella "zeta"...');
 
         const { data: fetchedData, error: fetchedError } = await supabase
           .from('zeta')
@@ -28,10 +28,12 @@ export default function SupabaseTestScreen() {
           .limit(5);
 
         if (fetchedError) {
+          //console.log('SupabaseTestScreen: Query SELECT riuscita! Dati:', fetchedData);
           console.error('SupabaseTestScreen: Errore nella query SELECT:', fetchedError);
           setError(fetchedError);
           setTestResult(`Errore nella query SELECT: ${fetchedError.message || 'Errore sconosciuto'}`);
         } else {
+          //console.log('SupabaseTestScreen: Query SELECT riuscita! Dati:', fetchedData);
           console.log('SupabaseTestScreen: Query SELECT riuscita! Dati:', fetchedData);
           setData(fetchedData);
           setTestResult('Connessione e query SELECT riuscite!');

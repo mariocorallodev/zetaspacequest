@@ -14,7 +14,7 @@ export const SIDEKICK_NAME_FONT_SIZE = 10;
 export const SIDEKICK_NAME_COLOR = 'yellow'; 
 
 // --- DEBUG: Logga il valore della costante quando il modulo GameStyle.js viene caricato ---
-console.log("GameStyle.js loaded. SIDEKICK_NAME_INITIAL_SCALE is:", SIDEKICK_NAME_INITIAL_SCALE);
+//console.log("GameStyle.js loaded. SIDEKICK_NAME_INITIAL_SCALE is:", SIDEKICK_NAME_INITIAL_SCALE);
 // --- FINE DEBUG ---
 
 const styles = StyleSheet.create({

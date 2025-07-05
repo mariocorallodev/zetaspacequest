@@ -153,7 +153,7 @@ export default function LeaderboardScreen({ score, onRestartGame }) {
         .from('zeta')
         .insert([{ player_name: playerName.toUpperCase(), score: score }]); // Salva il nome in maiuscolo
       if (error) throw error;
-      console.log('Punteggio salvato:', data);
+      //console.log('Punteggio salvato:', data);
       setScoreSaved(true);
       fetchLeaderboard(); // Aggiorna la leaderboard dopo aver salvato il punteggio
     } catch (error) {
@@ -191,7 +191,7 @@ export default function LeaderboardScreen({ score, onRestartGame }) {
   // --- LOG DI DEBUG AGGIUNTO ---
   // Questo log mostrerà nella console i dati esatti della leaderboard prima che vengano renderizzati.
   // Utile per controllare se ci sono valori nulli o inaspettati.
-  console.log('Dati leaderboard pronti per il render:', JSON.stringify(leaderboard, null, 2));
+  //console.log('Dati leaderboard pronti per il render:', JSON.stringify(leaderboard, null, 2));
 
 
   if (!fontsLoaded) {
