@@ -14,6 +14,7 @@ import baseStyles, {
   SIDEKICK_NAME_FONT_SIZE
 } from './styles/GameStyle';
 import IntroScreen from './screens/IntroScreen';
+import ModeChoiceScreen from './screens/ModeChoiceScreen';
 import LeaderboardScreen from './screens/LeaderboardScreen';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useFonts, PressStart2P_400Regular } from '@expo-google-fonts/press-start-2p';
@@ -103,6 +104,7 @@ const powerUpSoundFile = require('./assets/powerup.mp3');
 export default function App() {
   // --- TUTTI GLI HOOK DICHIARATI IN CIMA ---
   const [showIntro, setShowIntro] = useState(true);
+  const [showModeChoice, setShowModeChoice] = useState(false);
   const [started, setStarted] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
   const [isExited, setIsExited] = useState(false);
@@ -598,7 +600,7 @@ powerUpRef.current = {
   const handleIntroFinish = () => {
     Animated.timing(introScreenAnim, { toValue: 0, duration: 500, useNativeDriver: true }).start(() => {
       setShowIntro(false);
-      setStarted(true);
+      setShowModeChoice(true);
     });
   };
   
@@ -631,14 +633,26 @@ powerUpRef.current = {
 
   if (showIntro) {
     return (
-      <Animated.View style={{ flex: 1, opacity: introScreenAnim }}>
-        <IntroScreen
-          onFinish={handleIntroFinish}
-          onShowLeaderboard={handleShowLeaderboardFromIntro}
-          selectedMode={gameMode}
-          onSelectMode={setGameMode}
-        />
-      </Animated.View>
+      <IntroScreen
+        onPlay={() => {
+          setShowIntro(false);
+          setShowModeChoice(true);
+        }}
+        onShowLeaderboard={handleShowLeaderboardFromIntro}
+      />
+    );
+  }
+
+  if (showModeChoice) {
+    return (
+      <ModeChoiceScreen
+        selectedMode={gameMode}
+        onSelectMode={setGameMode}
+        onStart={() => {
+          setShowModeChoice(false);
+          setStarted(true);
+        }}
+      />
     );
   }
 
