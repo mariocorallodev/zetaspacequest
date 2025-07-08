@@ -17,12 +17,12 @@ export const level8Data = {
   // Asset specifici per questo livello
   backgroundImage: require('../assets/bg.jpg'), // Potrebbe essere background3.png
   enemyImage: require('../assets/lupo.png'), 
-  backgroundMusicFile: require('../assets/tea.mp3'), 
+  backgroundMusicFile: require('../assets/sounds/levels/6_9.mp3'), 
 
   // Configurazione della griglia più difficile
-  enemyRows: 4,
-  enemyCols: 9,
-  enemySpacing: 10,
+  enemyRows: 2,
+  enemyCols: 6,
+  enemySpacing: 18,
 
   // Nemici con una velocità diversa
   enemyMoveInterval: 60, // Un valore più ALTO significa nemici più LENTI

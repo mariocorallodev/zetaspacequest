@@ -16,12 +16,12 @@ export const level17Data = {
   // Asset specifici per questo livello
   backgroundImage: require('../assets/background2.png'),
   enemyImage: require('../assets/lupo.png'), 
-  backgroundMusicFile: require('../assets/boss3.mp3'), 
+  backgroundMusicFile: require('../assets/sounds/levels/16_19.mp3'), 
 
   // Configurazione della griglia più difficile
   enemyRows: 4,
-  enemyCols: 9,
-  enemySpacing: 0,
+  enemyCols: 8,
+  enemySpacing: 12,
 
   // Nemici con una velocità diversa
   enemyMoveInterval: 200,

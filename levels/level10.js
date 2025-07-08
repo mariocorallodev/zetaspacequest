@@ -42,7 +42,7 @@ export const level10Data = {
   // Asset specifici per questo livello
   backgroundImage: require('../assets/background2.png'),
   enemyImage: require('../assets/img/enemy/skate.png'),
-  backgroundMusicFile: require('../assets/boss3.mp3'),
+  backgroundMusicFile: require('../assets/sounds/levels/10.mp3'),
 
   difficulty: 1.5, // livello 10
 
@@ -54,5 +54,9 @@ export const level10Data = {
       interval: 480, // Tremolio ogni 480 tick (circa 8 secondi)
       intensity: 20, // Forza del tremolio
     }
-  }
+  },
+
+  enemyRows: 2,
+  enemyCols: 6,
+  enemySpacing: 18,
 };

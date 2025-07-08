@@ -42,7 +42,7 @@ export const level15Data = {
   // Asset specifici per questo livello
   backgroundImage: require('../assets/background2.png'),
   enemyImage: require('../assets/img/enemy/vacuum.png'),
-  backgroundMusicFile: require('../assets/sounds/vacuum.mp3'),
+  backgroundMusicFile: require('../assets/sounds/levels/15.mp3'),
 
   difficulty: 2, // livello 15
 
@@ -54,5 +54,9 @@ export const level15Data = {
       interval: 480, // Tremolio ogni 480 tick (circa 8 secondi)
       intensity: 20, // Forza del tremolio
     }
-  }
+  },
+
+  enemyRows: 3,
+  enemyCols: 7,
+  enemySpacing: 15,
 };

@@ -35,8 +35,8 @@ export const level30Data = {
 
   // Asset specifici per questo livello
   backgroundImage: require('../assets/background2.png'),
-  enemyImage: require('../assets/img/enemy/skate.png'),
-  backgroundMusicFile: require('../assets/boss3.mp3'),
+  enemyImage: require('../assets/img/enemy/phon.png'),
+  backgroundMusicFile: require('../assets/sounds/levels/30.mp3'),
 
   difficulty: 2.5, // livello 30
 
@@ -48,5 +48,9 @@ export const level30Data = {
       interval: 480, // Tremolio ogni 480 tick (circa 8 secondi)
       intensity: 20, // Forza del tremolio
     }
-  }
+  },
+
+  enemyRows: 6,
+  enemyCols: 10,
+  enemySpacing: 8,
 }; 

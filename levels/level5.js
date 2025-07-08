@@ -41,8 +41,8 @@ export const level5Data = {
 
   // Asset specifici per questo livello
   backgroundImage: require('../assets/background2.png'),
-  enemyImage: require('../assets/lupo.png'),
-  backgroundMusicFile: require('../assets/boss3.mp3'),
+  enemyImage: require('../assets/img/enemy/veterinario.png'),
+  backgroundMusicFile: require('../assets/sounds/levels/5.mp3'),
 
   difficulty: 1, // livello 5
 
@@ -54,5 +54,9 @@ export const level5Data = {
       interval: 480, // Tremolio ogni 480 tick (circa 8 secondi)
       intensity: 20, // Forza del tremolio
     }
-  }
+  },
+
+  enemyRows: 1,
+  enemyCols: 5,
+  enemySpacing: 20,
 };

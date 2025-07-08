@@ -16,12 +16,12 @@ export const level2Data = {
   // Asset specifici per questo livello
   backgroundImage: require('../assets/bg.jpg'), // Potrebbe essere background3.png
   enemyImage: require('../assets/enemy2.png'), // Potrebbe essere enemy2.png
-  backgroundMusicFile: require('../assets/blu.mp3'), // Potrebbe essere music2.mp3
+  backgroundMusicFile: require('../assets/sounds/levels/1_4.mp3'),
 
   // Configurazione della griglia dei nemici
-  enemyRows: 3,
-  enemyCols: 6,
-  enemySpacing: 15,
+  enemyRows: 1,
+  enemyCols: 5,
+  enemySpacing: 20,
 
   // Velocità di movimento dei nemici
   enemyMoveInterval: 90, // Si muovono ogni 30 tick (più basso = più veloce)

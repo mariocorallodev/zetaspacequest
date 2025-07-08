@@ -41,8 +41,8 @@ export const level25Data = {
 
   // Asset specifici per questo livello
   backgroundImage: require('../assets/background2.png'),
-  enemyImage: require('../assets/lupo.png'),
-  backgroundMusicFile: require('../assets/boss3.mp3'),
+  enemyImage: require('../assets/img/enemy/temporale.png'),
+  backgroundMusicFile: require('../assets/sounds/levels/25.mp3'),
 
   difficulty: 3.5, // livello 25
 
@@ -54,5 +54,9 @@ export const level25Data = {
       interval: 480, // Tremolio ogni 480 tick (circa 8 secondi)
       intensity: 20, // Forza del tremolio
     }
-  }
+  },
+
+  enemyRows: 5,
+  enemyCols: 9,
+  enemySpacing: 10,
 };

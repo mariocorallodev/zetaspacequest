@@ -1,22 +1,21 @@
-// IntroScreen.js – Schermata iniziale con pulsante START e effetto anni '80
+// IntroScreen.js – Componente "semplice" che riceve le funzioni di navigazione
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, Image, StyleSheet, Animated, TouchableOpacity, Text, Dimensions } from 'react-native';
-// Importa il hook useFonts e il font PressStart2P da expo-google-fonts
 import { useFonts, PressStart2P_400Regular } from '@expo-google-fonts/press-start-2p';
-import { GAME_MODES } from '../utils/gameModes';
+import { Audio } from 'expo-av';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-
 const titleImage = require('../assets/splash.png');
 
-// --- MODIFICATO: Aggiunta la prop onShowLeaderboard ---
-export default function IntroScreen({ onPlay, onShowLeaderboard }) {
+// --- MODIFICA: Riceve onShowLeaderboard2 come prop ---
+export default function IntroScreen({ onPlay, onShowLeaderboard, onShowLeaderboard2, onShowHowTo, onShowStory, onShowCredits }) {
   const opacity = new Animated.Value(0);
   const scale = new Animated.Value(0.1);
   const startButtonOpacity = new Animated.Value(0);
   const topScoresButtonOpacity = new Animated.Value(0);
   const [fontsLoaded] = useFonts({ 'PressStart2P': PressStart2P_400Regular });
+  const musicRef = useRef(null);
 
   useEffect(() => {
     if (fontsLoaded) {
@@ -49,6 +48,25 @@ export default function IntroScreen({ onPlay, onShowLeaderboard }) {
     }
   }, [fontsLoaded]);
 
+  useEffect(() => {
+    let isMounted = true;
+    async function loadMusic() {
+      try {
+        // Musica principale di intro
+        const { sound: music } = await Audio.Sound.createAsync(
+          require('../assets/sounds/levels/zetareticoliintro.mp3'),
+          { shouldPlay: true, isLooping: true, volume: 1.0 }
+        );
+        if (isMounted) musicRef.current = music;
+      } catch (e) {}
+    }
+    loadMusic();
+    return () => {
+      isMounted = false;
+      musicRef.current?.unloadAsync();
+    };
+  }, []);
+
   if (!fontsLoaded) {
     return (
       <View style={styles.container}>
@@ -76,10 +94,23 @@ export default function IntroScreen({ onPlay, onShowLeaderboard }) {
             <Text style={styles.startButtonText}>GIOCA</Text>
           </TouchableOpacity>
         </Animated.View>
-        <Animated.View style={[{ opacity: topScoresButtonOpacity, marginTop: 15 }]}> 
-          <TouchableOpacity onPress={onShowLeaderboard} style={styles.topScoresButton}>
-            <Text style={styles.topScoresButtonText}>TOP SCORES</Text>
-          </TouchableOpacity>
+        <Animated.View style={[styles.gridContainer, { opacity: topScoresButtonOpacity, marginTop: 30 }]}> 
+          <View style={styles.gridRow}>
+            <TouchableOpacity onPress={onShowHowTo} style={styles.gridButton}> 
+              <Text style={styles.gridButtonText}>HOW TO</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={onShowLeaderboard} style={styles.gridButton}>
+              <Text style={styles.gridButtonText}>TOP SCORES</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.gridRow}>
+            <TouchableOpacity onPress={onShowStory} style={styles.gridButton}> 
+              <Text style={styles.gridButtonText}>STORY</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={onShowCredits} style={styles.gridButton}> 
+              <Text style={styles.gridButtonText}>CREDITS</Text>
+            </TouchableOpacity>
+          </View>
         </Animated.View>
       </View>
     </View>
@@ -106,8 +137,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   startButton: {
-    paddingVertical: 16,
-    paddingHorizontal: 40,
+    paddingVertical: 14.4,
+    paddingHorizontal: 24,
     backgroundColor: '#ffe600',
     borderRadius: 10,
     borderWidth: 2,
@@ -115,28 +146,40 @@ const styles = StyleSheet.create({
     borderColor: '#fff',
     marginBottom: 10,
     alignItems: 'center',
-    width: 180,
+    width: 108,
+    alignSelf: 'center',
   },
   startButtonText: {
     color: '#222',
     fontFamily: 'PressStart2P',
-    fontSize: 18,
+    fontSize: 10.8,
     textAlign: 'center',
   },
-  topScoresButton: {
-    paddingVertical: 14,
-    paddingHorizontal: 40,
-    backgroundColor: 'transparent',
+  gridContainer: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  gridRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  gridButton: {
+    backgroundColor: '#222',
     borderRadius: 10,
     borderWidth: 2,
     borderColor: '#fff',
+    paddingVertical: 11.2,
+    paddingHorizontal: 14.4,
+    marginHorizontal: 8,
+    minWidth: 88,
     alignItems: 'center',
-    width: 180,
   },
-  topScoresButtonText: {
-    color: 'white',
+  gridButtonText: {
+    color: 'cyan',
     fontFamily: 'PressStart2P',
-    fontSize: 16,
+    fontSize: 9.6,
     textAlign: 'center',
   },
 });

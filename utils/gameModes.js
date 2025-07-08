@@ -20,6 +20,6 @@ export function applyGameModeToLevel(levelData, modeKey) {
   const multiplier = getModeMultiplier(modeKey);
   return {
     ...levelData,
-    enemyRows: Math.max(1, Math.round(levelData.enemyRows * multiplier)),
+    enemyRows: Math.min(8, Math.max(1, Math.round(levelData.enemyRows * multiplier))),
   };
 } 

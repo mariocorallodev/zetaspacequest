@@ -6,6 +6,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, FlatList, Dimensio
 import { supabase } from '../supabaseClient'; // Assicurati che il percorso sia corretto
 import { useFonts, PressStart2P_400Regular } from '@expo-google-fonts/press-start-2p';
 import baseStyles from '../styles/GameStyle'; // Importa gli stili di base
+import { Audio } from 'expo-av';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -129,6 +130,11 @@ export default function LeaderboardScreen({ score, onRestartGame }) {
   const [loading, setLoading] = useState(false);
   const [scoreSaved, setScoreSaved] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const soundRef = useRef(null);
+  const scrollViewRef = useRef(null);
+  const scrollOffset = useRef(0);
+  const scrollInterval = useRef(null);
+  const [itemHeight, setItemHeight] = useState(32); // Altezza dinamica
 
   const [fontsLoaded] = useFonts({ 'PressStart2P': PressStart2P_400Regular });
 
@@ -139,6 +145,30 @@ export default function LeaderboardScreen({ score, onRestartGame }) {
       useNativeDriver: true,
     }).start();
   }, [fadeAnim]);
+
+  useEffect(() => {
+    // Funzione per caricare e riprodurre il suono in loop
+    async function playMusic() {
+      try {
+        const { sound } = await Audio.Sound.createAsync(
+          require('../assets/sounds/levels/zetareticoli.mp3'),
+          { shouldPlay: true, isLooping: true, volume: 1.0 }
+        );
+        soundRef.current = sound;
+      } catch (e) {
+        console.log('Errore caricamento audio leaderboard:', e);
+      }
+    }
+    playMusic();
+    return () => {
+      // Stoppa e rilascia il suono quando si esce dalla schermata
+      if (soundRef.current) {
+        soundRef.current.stopAsync();
+        soundRef.current.unloadAsync();
+        soundRef.current = null;
+      }
+    };
+  }, []);
 
   // Funzione per salvare il punteggio
   const saveScore = async () => {
@@ -187,6 +217,32 @@ export default function LeaderboardScreen({ score, onRestartGame }) {
   useEffect(() => {
     fetchLeaderboard();
   }, [fetchLeaderboard]);
+
+  useEffect(() => {
+    // --- SCROLL AUTOMATICO LEADERBOARD DINAMICO ---
+    if (leaderboard.length > 1 && itemHeight > 0) {
+      const visibleItems = Math.floor((SCREEN_HEIGHT * 0.4 - 8 - 8 - 5) / itemHeight); // header+padding+border
+      scrollInterval.current = setInterval(() => {
+        if (scrollViewRef.current) {
+          scrollOffset.current += itemHeight;
+          // Se siamo arrivati in fondo, ricomincia da capo
+          if (scrollOffset.current >= itemHeight * (leaderboard.length - visibleItems + 1)) {
+            scrollOffset.current = 0;
+          }
+          console.log('[LEADERBOARD SCROLL]', {
+            offset: scrollOffset.current,
+            itemHeight,
+            visibleItems,
+            leaderboardLength: leaderboard.length
+          });
+          scrollViewRef.current.scrollTo({ y: scrollOffset.current, animated: true });
+        }
+      }, 1800);
+    }
+    return () => {
+      if (scrollInterval.current) clearInterval(scrollInterval.current);
+    };
+  }, [leaderboard, itemHeight]);
   
   // --- LOG DI DEBUG AGGIUNTO ---
   // Questo log mostrerà nella console i dati esatti della leaderboard prima che vengano renderizzati.
@@ -252,25 +308,18 @@ export default function LeaderboardScreen({ score, onRestartGame }) {
             <Text style={[leaderboardStyles.headerText, { fontFamily: 'PressStart2P' }]}>NOME</Text>
             <Text style={[leaderboardStyles.headerText, { fontFamily: 'PressStart2P' }]}>PUNTI</Text>
           </View>
-          <ScrollView> 
+          <ScrollView ref={scrollViewRef} showsVerticalScrollIndicator={false} scrollEnabled={false}>
             {leaderboard.length > 0 ? (
               leaderboard.map((item, index) => (
-                <View key={item.id || index} style={leaderboardStyles.scoreItem}>
-                  <Text style={[leaderboardStyles.scoreText, { fontFamily: 'PressStart2P' }]}>
-                    {index + 1}.
-                  </Text>
-                  <Text style={[leaderboardStyles.scoreText, { fontFamily: 'PressStart2P' }]}>
-                    {item.player_name}
-                  </Text>
-                  <Text style={[leaderboardStyles.scoreText, { fontFamily: 'PressStart2P' }]}>
-                    {item.score}
-                  </Text>
+                <View key={item.id || index} style={leaderboardStyles.scoreItem}
+                  onLayout={index === 0 ? (e) => setItemHeight(e.nativeEvent.layout.height) : undefined}>
+                  <Text style={[leaderboardStyles.scoreText, { fontFamily: 'PressStart2P' }]}> {index + 1}. </Text>
+                  <Text style={[leaderboardStyles.scoreText, { fontFamily: 'PressStart2P' }]}>{item.player_name}</Text>
+                  <Text style={[leaderboardStyles.scoreText, { fontFamily: 'PressStart2P' }]}>{item.score}</Text>
                 </View>
               ))
             ) : (
-              <Text style={[leaderboardStyles.noScoresText, { fontFamily: 'PressStart2P' }]}>
-                Nessun punteggio disponibile. Sii il primo!
-              </Text>
+              <Text style={[leaderboardStyles.noScoresText, { fontFamily: 'PressStart2P' }]}>Nessun punteggio disponibile. Sii il primo!</Text>
             )}
           </ScrollView>
           {/* --- CORREZIONE APPLICATA QUI --- */}
