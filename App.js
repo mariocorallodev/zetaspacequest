@@ -27,6 +27,7 @@ import PauseOverlay from './components/PauseOverlay';
 import GameOverOverlay from './components/GameOverOverlay';
 import ExitOverlay from './components/ExitOverlay';
 import LevelCompleteOverlay from './components/LevelCompleteOverlay';
+import { GAME_MODES, applyGameModeToLevel } from './utils/gameModes';
 
 // --- GESTIONE LIVELLI ---
 import { level1Data } from './levels/level1';
@@ -54,14 +55,19 @@ import { level22Data } from './levels/level22';
 import { level23Data } from './levels/level23';
 import { level24Data } from './levels/level24';
 import { level25Data } from './levels/level25';
+import { level26Data } from './levels/level26';
+import { level27Data } from './levels/level27';
+import { level28Data } from './levels/level28';
+import { level29Data } from './levels/level29';
+import { level30Data } from './levels/level30';
 // --- Importa la funzione di gestione dello sparo potenziato ---
 import { handlePoweredUpFire } from './PowerUpManager';
 // --- Importa la funzione di animazione del tremolio ---
 import { startShakeAnimation } from './utils/Animations';
 import { useLevelEffects } from './utils/bossShakeAnimation';
 
-const allLevels = [level1Data, level2Data, level3Data, level4Data, level5Data, level6Data, level7Data, level8Data, level9Data, level10Data, level11Data, level12Data, level13Data, level14Data, level15Data, level16Data, level17Data, level18Data, level19Data, level20Data, level21Data, level22Data, level23Data, level24Data, level25Data];
-const START_LEVEL = 15;
+const allLevels = [level1Data, level2Data, level3Data, level4Data, level5Data, level6Data, level7Data, level8Data, level9Data, level10Data, level11Data, level12Data, level13Data, level14Data, level15Data, level16Data, level17Data, level18Data, level19Data, level20Data, level21Data, level22Data, level23Data, level24Data, level25Data, level26Data, level27Data, level28Data, level29Data, level30Data];
+const START_LEVEL =1;
 
 // --- COSTANTI DI GIOCO ---
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -95,6 +101,7 @@ const powerUpImage = require('./assets/power.png');
 const powerUpSoundFile = require('./assets/powerup.mp3');
 
 export default function App() {
+  // --- TUTTI GLI HOOK DICHIARATI IN CIMA ---
   const [showIntro, setShowIntro] = useState(true);
   const [started, setStarted] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
@@ -110,9 +117,10 @@ export default function App() {
   const [isPoweredUp, setIsPoweredUp] = useState(false);
   const [showWinScreen, setShowWinScreen] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
-  // Nuovi stati per l'effetto aura
   const [showPowerUpAura, setShowPowerUpAura] = useState(false);
   const [dogHit, setDogHit] = useState(false);
+  const [gameMode, setGameMode] = useState('ZEN'); // Default: ZEN
+  const [fontsLoaded] = useFonts({ 'PressStart2P': PressStart2P_400Regular });
 
   const sidekickNameScaleAnim = useRef(new Animated.Value(0)).current;
   const sidekickNameOpacityAnim = useRef(new Animated.Value(0)).current;
@@ -143,16 +151,12 @@ export default function App() {
   const exitedScreenAnim = useRef(new Animated.Value(0)).current;
   const introScreenAnim = useRef(new Animated.Value(1)).current;
   const levelTransitionAnim = useRef(new Animated.Value(0)).current;
-  // Animazione per l'aura del power-up
   const powerUpAuraScale = useRef(new Animated.Value(0)).current;
   const powerUpAuraOpacity = useRef(new Animated.Value(1)).current;
   const dogHitAudio = useRef(null);
 
-  const [fontsLoaded] = useFonts({ 'PressStart2P': PressStart2P_400Regular });
   const latestHandleFireRef = useRef();
-  
   const updateLevelEffects = useLevelEffects(levelData, shakeAnimation);
-
   const bossRef = useRef(null);
   const bossHitAudio = useRef(null);
   const bossProjectilesRef = useRef([]);
@@ -604,17 +608,36 @@ powerUpRef.current = {
     setShowLeaderboard(true);
   }, []);
 
-  if (!fontsLoaded) return (<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'black' }}><Text style={{ color: 'white', fontSize: 20 }}>Caricamento...</Text></View>);
+  // ⬇️ Spostato qui: aggiorna i dati del livello ogni volta che currentLevel o gameMode cambiano
+  useEffect(() => {
+    if (gameMode) {
+      const baseData = allLevels[currentLevel - 1];
+      setLevelData(applyGameModeToLevel(baseData, gameMode));
+    }
+  }, [currentLevel, gameMode]);
 
-  // --- CORREZIONE LOGICA DI RENDERING ---
-  // Invece di tanti `if` separati, usiamo una logica più chiara.
+  // --- DOPO TUTTI GLI HOOK, SOLO QUI I RETURN CONDIZIONALI ---
+  if (!fontsLoaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'black' }}>
+        <Text style={{ color: 'white', fontSize: 20 }}>Caricamento...</Text>
+      </View>
+    );
+  }
+
   if (showLeaderboard) {
     return (<LeaderboardScreen score={score} onRestartGame={resetGame} />);
   }
+
   if (showIntro) {
     return (
       <Animated.View style={{ flex: 1, opacity: introScreenAnim }}>
-        <IntroScreen onFinish={handleIntroFinish} onShowLeaderboard={handleShowLeaderboardFromIntro} />
+        <IntroScreen
+          onFinish={handleIntroFinish}
+          onShowLeaderboard={handleShowLeaderboardFromIntro}
+          selectedMode={gameMode}
+          onSelectMode={setGameMode}
+        />
       </Animated.View>
     );
   }

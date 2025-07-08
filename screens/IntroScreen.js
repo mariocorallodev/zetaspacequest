@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import { View, Image, StyleSheet, Animated, Dimensions, TouchableOpacity, Text } from 'react-native';
 // Importa il hook useFonts e il font PressStart2P da expo-google-fonts
 import { useFonts, PressStart2P_400Regular } from '@expo-google-fonts/press-start-2p';
+import { GAME_MODES } from '../utils/gameModes';
 
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -11,7 +12,7 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 const titleImage = require('../assets/splash.png');
 
 // --- MODIFICATO: Aggiunta la prop onShowLeaderboard ---
-export default function IntroScreen({ onFinish, onShowLeaderboard }) {
+export default function IntroScreen({ onFinish, onShowLeaderboard, selectedMode, onSelectMode }) {
   const opacity = new Animated.Value(0);
   const scale = new Animated.Value(0.1);
   const startButtonOpacity = new Animated.Value(0);
@@ -28,7 +29,7 @@ export default function IntroScreen({ onFinish, onShowLeaderboard }) {
       //console.log("IntroScreen.js: Font caricati, avvio animazione titolo.");
       Animated.parallel([
         Animated.timing(opacity, {
-          toValue: 1,
+          toValue: 0.6,
           duration: 1500,
           useNativeDriver: true,
         }),
@@ -82,21 +83,33 @@ export default function IntroScreen({ onFinish, onShowLeaderboard }) {
         resizeMode="contain"
       />
 
-      {/* Contenitore per i bottoni START e TOP SCORES */}
+      <View style={styles.modeChoiceContainer}>
+        <Text style={styles.modeChoiceLabel}>Modalità di gioco:</Text>
+        {GAME_MODES.map(mode => (
+          <TouchableOpacity
+            key={mode.key}
+            style={[styles.modeChoiceButton, selectedMode === mode.key && styles.modeChoiceButtonSelected]}
+            onPress={() => onSelectMode(mode.key)}
+          >
+            <Text style={[styles.modeChoiceText, selectedMode === mode.key && styles.modeChoiceTextSelected]}>
+              {mode.label}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
       <View style={styles.buttonsContainer}>
-        <Animated.View style={[{ opacity: startButtonOpacity }]}>
+        <Animated.View style={[{ opacity: startButtonOpacity }]}> 
           <TouchableOpacity onPress={() => {
-            //  console.log("IntroScreen.js: Pulsante START premuto!");
+            console.log("[IntroScreen] Pulsante START premuto!");
               onFinish(); // Chiama la funzione onFinish passata da App.js
           }} style={styles.startButton}>
             <Text style={[styles.startButtonText, { fontFamily: 'PressStart2P' }]}>START</Text>
           </TouchableOpacity>
         </Animated.View>
-
-        {/* --- NUOVO: Pulsante TOP SCORES --- */}
-        <Animated.View style={[{ opacity: topScoresButtonOpacity, marginTop: 15 }]}>
+        <Animated.View style={[{ opacity: topScoresButtonOpacity, marginTop: 15 }]}> 
           <TouchableOpacity onPress={() => {
-          //    console.log("IntroScreen.js: Pulsante TOP SCORES premuto!");
+              console.log("[IntroScreen] Pulsante TOP SCORES premuto!");
               if (onShowLeaderboard) {
                 onShowLeaderboard(); // Chiama la nuova funzione per mostrare la leaderboard
               }
@@ -104,8 +117,6 @@ export default function IntroScreen({ onFinish, onShowLeaderboard }) {
             <Text style={[styles.topScoresButtonText, { fontFamily: 'PressStart2P' }]}>TOP SCORES</Text>
           </TouchableOpacity>
         </Animated.View>
-        {/* --- Fine NUOVO --- */}
-
       </View>
     </View>
   );
@@ -115,25 +126,27 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#000',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    position: 'relative',
+    paddingTop: 40,
+    paddingBottom: 40,
   },
   image: {
     width: SCREEN_WIDTH * 0.9,
     height: SCREEN_HEIGHT * 0.4,
-    marginBottom: 50,
+    marginBottom: 5,
   },
-  // --- NUOVO: Contenitore per i bottoni, posizionato in basso ---
+  modeChoiceContainer: {
+    alignItems: 'center',
+    marginBottom: 10,
+  },
   buttonsContainer: {
-    position: 'absolute',
-    bottom: SCREEN_HEIGHT * 0.15, // Un po' più in alto per fare spazio a due bottoni
-    alignItems: 'center', // Centra i bottoni
+    width: '100%',
+    alignItems: 'center',
   },
-  // --- Fine NUOVO ---
   startButton: {
     paddingVertical: 15,
-    paddingHorizontal: 40,
+    paddingHorizontal: 0,
     backgroundColor: 'transparent',
     borderRadius: 10,
     borderWidth: 2,
@@ -143,6 +156,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 1,
     shadowRadius: 10,
     elevation: 10,
+    width: 140
   },
   startButtonText: {
     color: 'white',
@@ -152,27 +166,66 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
   },
-  // --- NUOVO: Stili per il pulsante TOP SCORES (simile a START ma con colore diverso) ---
   topScoresButton: {
     paddingVertical: 15,
-    paddingHorizontal: 40,
+    paddingHorizontal: 28,
     backgroundColor: 'transparent',
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: 'white', // Un colore diverso, ad esempio ciano
-    shadowColor: 'white', // Glow ciano
+    borderColor: 'white',
+    shadowColor: 'white',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 1,
     shadowRadius: 10,
     elevation: 10,
+    width: 140,
   },
   topScoresButtonText: {
     color: 'white',
-    fontSize: 10, // Leggermente più piccolo per differenziare
+    fontSize: 10,
     textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
+    width: 80,
   },
-  // --- Fine NUOVO ---
+  modeChoiceLabel: {
+    color: 'white',
+    fontSize: 12,
+    fontFamily: 'PressStart2P',
+    marginBottom: 18,
+    letterSpacing: 1,
+  },
+  modeChoiceButton: {
+    paddingVertical: 4,
+    paddingHorizontal: 4,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#fff',
+    marginVertical: 8,
+    backgroundColor: 'rgba(255,255,255,0.10)',
+    width: 140,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#ffe600',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  modeChoiceButtonSelected: {
+    backgroundColor: '#ffe600',
+    borderColor: '#ffe600',
+    shadowOpacity: 0.35,
+  },
+  modeChoiceText: {
+    color: 'white',
+    fontSize: 10,
+    fontFamily: 'PressStart2P',
+    letterSpacing: 1,
+  },
+  modeChoiceTextSelected: {
+    color: '#222',
+    fontWeight: 'bold',
+  },
 });

@@ -19,7 +19,7 @@ export const level1Data = {
   backgroundMusicFile: require('../assets/music2.mp3'),
 
   // Configurazione della griglia dei nemici
-  enemyRows: 3,
+  enemyRows: 1,
   enemyCols: 6,
   enemySpacing: 15,
 
