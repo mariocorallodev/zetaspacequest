@@ -20,6 +20,8 @@ import ModeChoiceScreen from './screens/ModeChoiceScreen';
 import LeaderboardScreen from './screens/LeaderboardScreen';
 import Leaderboard2Screen from './screens/Leaderboard2Screen'; // Importato qui
 import HowToScreen from './screens/HowToScreen';
+import StoryScreen from './screens/StoryScreen';
+import CreditsScreen from './screens/CreditsScreen';
 
 // --- Import Componenti e Utility ---
 import { useFonts, PressStart2P_400Regular } from '@expo-google-fonts/press-start-2p';
@@ -172,6 +174,8 @@ export default function App() {
   const handleShowLeaderboard = () => setCurrentScreen('leaderboard');
   const handleShowLeaderboard2 = () => setCurrentScreen('leaderboard2');
   const handleShowHowTo = () => setCurrentScreen('howto');
+  const handleShowStory = () => setCurrentScreen('story');
+  const handleShowCredits = () => setCurrentScreen('credits');
   const handleBackToIntro = () => setCurrentScreen('intro');
   const handleStartGame = () => {
     setCurrentScreen('game');
@@ -613,6 +617,8 @@ export default function App() {
             onShowLeaderboard={handleShowLeaderboard}
             onShowLeaderboard2={handleShowLeaderboard2}
             onShowHowTo={handleShowHowTo}
+            onShowStory={handleShowStory}
+            onShowCredits={handleShowCredits}
           />
         );
       case 'leaderboard':
@@ -621,6 +627,10 @@ export default function App() {
         return <Leaderboard2Screen onBack={handleBackToIntro} />;
       case 'howto':
         return <HowToScreen onBack={handleBackToIntro} />;
+      case 'story':
+        return <StoryScreen onBack={handleBackToIntro} />;
+      case 'credits':
+        return <CreditsScreen onBack={handleBackToIntro} />;
       case 'modeChoice':
         return (
           <ModeChoiceScreen

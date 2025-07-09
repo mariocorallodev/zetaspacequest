@@ -1,4 +1,3 @@
-// HowToScreen.js
 import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { useFonts, PressStart2P_400Regular } from '@expo-google-fonts/press-start-2p';
@@ -9,7 +8,7 @@ import AnimatedDog2 from '../components/AnimatedDog2';
 
 const HOWTO_URL = 'https://raw.githubusercontent.com/mariocorallodev/zetacontent/refs/heads/main/howto.txt';
 
-export default function HowToScreen({ onBack }) {
+export default function CreditsScreen({ onBack }) {
   const [fontsLoaded] = useFonts({ 'PressStart2P': PressStart2P_400Regular });
 
   const [testo, setTesto] = useState('');
@@ -54,7 +53,6 @@ export default function HowToScreen({ onBack }) {
       });
   }, []);
 
-  // Scroll automatico una volta sola
   useEffect(() => {
     if (!scrolling) return;
 
@@ -155,4 +153,4 @@ const styles = StyleSheet.create({
     fontFamily: 'PressStart2P',
     textAlign: 'center',
   },
-});
+}); 
