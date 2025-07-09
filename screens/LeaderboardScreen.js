@@ -129,12 +129,15 @@ export default function LeaderboardScreen({ score, onRestartGame }) {
   const [leaderboard, setLeaderboard] = useState([]);
   const [loading, setLoading] = useState(false);
   const [scoreSaved, setScoreSaved] = useState(false);
+  const [playerPosition, setPlayerPosition] = useState(null);
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const soundRef = useRef(null);
   const scrollViewRef = useRef(null);
   const scrollOffset = useRef(0);
   const scrollInterval = useRef(null);
   const [itemHeight, setItemHeight] = useState(32); // Altezza dinamica
+  const manualScrollActive = useRef(false); // Flag per tracciare scroll manuale
+  const manualScrollTimeout = useRef(null); // Timeout per riprendere scroll automatico
 
   const [fontsLoaded] = useFonts({ 'PressStart2P': PressStart2P_400Regular });
 
@@ -185,6 +188,20 @@ export default function LeaderboardScreen({ score, onRestartGame }) {
       if (error) throw error;
       //console.log('Punteggio salvato:', data);
       setScoreSaved(true);
+      
+      // Trova la posizione del giocatore nella leaderboard
+      const { data: allScores, error: rankError } = await supabase
+        .from('zeta')
+        .select('player_name, score')
+        .order('score', { ascending: false });
+      
+      if (!rankError && allScores) {
+        const position = allScores.findIndex(item => 
+          item.player_name === playerName.toUpperCase() && item.score === score
+        ) + 1;
+        setPlayerPosition(position);
+      }
+      
       fetchLeaderboard(); // Aggiorna la leaderboard dopo aver salvato il punteggio
     } catch (error) {
       console.error('Errore nel salvare il punteggio:', error.message);
@@ -203,7 +220,7 @@ export default function LeaderboardScreen({ score, onRestartGame }) {
         .from('zeta')
         .select('player_name, score')
         .order('score', { ascending: false }) // Ordina dal più alto al più basso
-        .limit(10); // Recupera i primi 10 punteggi
+        .limit(100); // Recupera i primi 10 punteggi
       if (error) throw error;
       setLeaderboard(data);
     } catch (error) {
@@ -220,27 +237,30 @@ export default function LeaderboardScreen({ score, onRestartGame }) {
 
   useEffect(() => {
     // --- SCROLL AUTOMATICO LEADERBOARD DINAMICO ---
-    if (leaderboard.length > 1 && itemHeight > 0) {
-      const visibleItems = Math.floor((SCREEN_HEIGHT * 0.4 - 8 - 8 - 5) / itemHeight); // header+padding+border
+    if (leaderboard.length > 3 && itemHeight > 0) { // Solo se ci sono più di 3 elementi
+      const visibleItems = Math.floor((SCREEN_HEIGHT * 0.4 - 60) / itemHeight); // Calcolo più accurato
+      const maxScroll = Math.max(0, (leaderboard.length - visibleItems) * itemHeight);
+      
       scrollInterval.current = setInterval(() => {
-        if (scrollViewRef.current) {
+        if (scrollViewRef.current && !manualScrollActive.current) {
           scrollOffset.current += itemHeight;
           // Se siamo arrivati in fondo, ricomincia da capo
-          if (scrollOffset.current >= itemHeight * (leaderboard.length - visibleItems + 1)) {
+          if (scrollOffset.current >= maxScroll) {
             scrollOffset.current = 0;
           }
-          console.log('[LEADERBOARD SCROLL]', {
-            offset: scrollOffset.current,
-            itemHeight,
-            visibleItems,
-            leaderboardLength: leaderboard.length
-          });
           scrollViewRef.current.scrollTo({ y: scrollOffset.current, animated: true });
         }
-      }, 1800);
+      }, 2000); // Aumentato il tempo per una lettura più comoda
     }
     return () => {
-      if (scrollInterval.current) clearInterval(scrollInterval.current);
+      if (scrollInterval.current) {
+        clearInterval(scrollInterval.current);
+        scrollInterval.current = null;
+      }
+      if (manualScrollTimeout.current) {
+        clearTimeout(manualScrollTimeout.current);
+        manualScrollTimeout.current = null;
+      }
     };
   }, [leaderboard, itemHeight]);
   
@@ -294,13 +314,25 @@ export default function LeaderboardScreen({ score, onRestartGame }) {
             </TouchableOpacity>
           </>
         ) : (
-          <Text style={[leaderboardStyles.subtitle, { fontFamily: 'PressStart2P', color: 'yellow' }]}>
-            Punteggio salvato!
-          </Text>
+          <>
+            <Text style={[leaderboardStyles.subtitle, { fontFamily: 'PressStart2P', color: 'yellow' }]}>
+              Punteggio salvato!
+            </Text>
+            {playerPosition && (
+              <>
+                <Text style={[leaderboardStyles.subtitle, { fontFamily: 'PressStart2P', color: '#FF00FF', marginTop: 5 }]}>
+                  Complimenti {playerName.toUpperCase()}!
+                </Text>
+                <Text style={[leaderboardStyles.subtitle, { fontFamily: 'PressStart2P', color: '#00FFFF' }]}>
+                  Sei in {playerPosition}ª posizione!
+                </Text>
+              </>
+            )}
+          </>
         )}
 
         <Text style={[leaderboardStyles.subtitle, { fontFamily: 'PressStart2P', marginTop: 14 }]}>
-          TOP 10
+          TOP 100
         </Text>
         <View style={leaderboardStyles.leaderboardContainer}>
           <View style={leaderboardStyles.leaderboardHeader}>
@@ -308,7 +340,32 @@ export default function LeaderboardScreen({ score, onRestartGame }) {
             <Text style={[leaderboardStyles.headerText, { fontFamily: 'PressStart2P' }]}>NOME</Text>
             <Text style={[leaderboardStyles.headerText, { fontFamily: 'PressStart2P' }]}>PUNTI</Text>
           </View>
-          <ScrollView ref={scrollViewRef} showsVerticalScrollIndicator={false} scrollEnabled={false}>
+          <ScrollView 
+            ref={scrollViewRef} 
+            showsVerticalScrollIndicator={false} 
+            scrollEnabled={true}
+            onScrollBeginDrag={() => {
+              manualScrollActive.current = true;
+              if (manualScrollTimeout.current) {
+                clearTimeout(manualScrollTimeout.current);
+              }
+            }}
+            onScrollEndDrag={(event) => {
+              // Aggiorna la posizione di scroll automatico con quella manuale
+              scrollOffset.current = event.nativeEvent.contentOffset.y;
+              // Riprendi lo scroll automatico dopo 3 secondi di inattività
+              manualScrollTimeout.current = setTimeout(() => {
+                manualScrollActive.current = false;
+              }, 3000);
+            }}
+            onMomentumScrollEnd={(event) => {
+              // Aggiorna anche quando lo scroll termina per inerzia
+              scrollOffset.current = event.nativeEvent.contentOffset.y;
+              manualScrollTimeout.current = setTimeout(() => {
+                manualScrollActive.current = false;
+              }, 3000);
+            }}
+          >
             {leaderboard.length > 0 ? (
               leaderboard.map((item, index) => (
                 <View key={item.id || index} style={leaderboardStyles.scoreItem}

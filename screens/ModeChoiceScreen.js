@@ -3,12 +3,14 @@ import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-nati
 import { GAME_MODES } from '../utils/gameModes';
 import { Audio } from 'expo-av';
 import { useFonts, PressStart2P_400Regular } from '@expo-google-fonts/press-start-2p';
+import AnimatedDog2 from '../components/AnimatedDog2';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function ModeChoiceScreen({ selectedMode, onSelectMode, onStart }) {
   const coin1Ref = React.useRef(null);
   const coin2Ref = React.useRef(null);
+  const musicRef = React.useRef(null);
   
   // STATI
   const [fontsLoaded] = useFonts({ 'PressStart2P': PressStart2P_400Regular });
@@ -58,6 +60,29 @@ export default function ModeChoiceScreen({ selectedMode, onSelectMode, onStart }
     };
   }, []); // L'array vuoto assicura che questo effetto venga eseguito solo una volta
 
+  // Musica di sottofondo destiny.mp3
+  React.useEffect(() => {
+    let isMounted = true;
+    async function loadMusic() {
+      try {
+        const { sound } = await Audio.Sound.createAsync(
+          require('../assets/sounds/levels/destiny.mp3'),
+          { shouldPlay: true, isLooping: true, volume: 0.5 }
+        );
+        if (isMounted) musicRef.current = sound;
+      } catch (e) {}
+    }
+    loadMusic();
+    return () => {
+      isMounted = false;
+      if (musicRef.current) {
+        musicRef.current.stopAsync();
+        musicRef.current.unloadAsync();
+        musicRef.current = null;
+      }
+    };
+  }, []);
+
   // GESTORE PER LA SELEZIONE DELLA MODALITÀ
   const handleModeSelect = async (mode) => {
     if (!soundsReady) return;
@@ -96,10 +121,7 @@ export default function ModeChoiceScreen({ selectedMode, onSelectMode, onStart }
       <Text style={styles.explanation}>
         Scegli la modalità di gioco:
         {'\n'}
-        - Zen: rilassata, pochi nemici
-        {'\n'}- Normal: classica
-        {'\n'}- Advanced: per esperti
-        {'\n'}- Panic: massima difficoltà!
+       
       </Text>
       <View style={styles.modeChoiceContainer}>
         {GAME_MODES.map(mode => (
@@ -119,6 +141,7 @@ export default function ModeChoiceScreen({ selectedMode, onSelectMode, onStart }
           </TouchableOpacity>
         ))}
       </View>
+      <AnimatedDog2 size={280} />
       {selectedMode && (
         <TouchableOpacity 
             disabled={!soundsReady}

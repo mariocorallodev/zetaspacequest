@@ -1,7 +1,7 @@
 // App.js – Con logica di navigazione centralizzata e completa
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { View, Image, TouchableOpacity, Dimensions, Text, Animated, SafeAreaView, PanResponder } from 'react-native';
+import { View, Image, TouchableOpacity, Dimensions, Text, Animated, SafeAreaView, PanResponder, Platform } from 'react-native';
 import { GameLoop } from 'react-native-game-engine';
 import { Audio } from 'expo-av';
 import baseStyles, {
@@ -18,7 +18,7 @@ import baseStyles, {
 import IntroScreen from './screens/IntroScreen';
 import ModeChoiceScreen from './screens/ModeChoiceScreen';
 import LeaderboardScreen from './screens/LeaderboardScreen';
-import Leaderboard2Screen from './screens/Leaderboard2Screen'; // Importato qui
+import Leaderboard2Screen from './screens/Leaderboard2Screen';
 import HowToScreen from './screens/HowToScreen';
 import StoryScreen from './screens/StoryScreen';
 import CreditsScreen from './screens/CreditsScreen';
@@ -89,10 +89,13 @@ const FIRE_COOLDOWN = 250;
 const ENEMY_MOVE_SPEED = 10;
 const ENEMY_VERTICAL_MOVE = ENEMY_HEIGHT / 2;
 const POWERUP_SIZE = 50;
+const POWERUP_COLLISION_TOLERANCE_Y = 15;
+const POWERUP_SPEED = 3;
+const POWERUP_HORIZONTAL_MARGIN = 40;
 
 // --- COSTANTI PER LA SCHERMATA DI PAUSA ---
 const PAUSE_TITLE_FONT_SIZE = 40;
-const PAUSE_BUTTON_FONT_SIZE = 18;
+const PAUSE_BUTTON_FONT_SIZE = 14;
 const PAUSE_BUTTON_PADDING_V = 15;
 const PAUSE_BUTTON_PADDING_H = 30;
 
@@ -108,8 +111,7 @@ const powerUpImage = require('./assets/power.png');
 const powerUpSoundFile = require('./assets/powerup.mp3');
 
 export default function App() {
-  // --- MODIFICA: Stato di navigazione centralizzato ---
-  const [currentScreen, setCurrentScreen] = useState('intro'); // 'intro', 'modeChoice', 'game', 'leaderboard', 'leaderboard2', 'howto'
+  const [currentScreen, setCurrentScreen] = useState('intro');
 
   // --- STATI DI GIOCO ---
   const [started, setStarted] = useState(false);
@@ -129,6 +131,7 @@ export default function App() {
   const [dogHit, setDogHit] = useState(false);
   const [gameMode, setGameMode] = useState('ZEN');
   const [fontsLoaded] = useFonts({ 'PressStart2P': PressStart2P_400Regular });
+  const [powerUpRenderTick, setPowerUpRenderTick] = useState(0);
 
   // --- REFS ---
   const sidekickNameScaleAnim = useRef(new Animated.Value(0)).current;
@@ -169,7 +172,7 @@ export default function App() {
   const bossProjectilesRef = useRef([]);
   const bossShootTimerRef = useRef(0);
 
-  // --- MODIFICA: Funzioni di navigazione ---
+  // --- FUNZIONI DI NAVIGAZIONE ---
   const handlePlay = () => setCurrentScreen('modeChoice');
   const handleShowLeaderboard = () => setCurrentScreen('leaderboard');
   const handleShowLeaderboard2 = () => setCurrentScreen('leaderboard2');
@@ -243,16 +246,8 @@ export default function App() {
       await explosionAudio.current.loadAsync(explosionSound);
       await gameOverAudio.current.loadAsync(gameOverSound);
       await lifeAudio.current.loadAsync(lifeSound);
-      try {
-        await powerUpAudio.current.loadAsync(powerUpSoundFile);
-      } catch (e) {
-        console.log("Audio powerup.mp3 non trovato.");
-      }
-      try {
-        await bossHitAudio.current.loadAsync(require('./assets/boss_hit.mp3'));
-      } catch (e) {
-        console.log("Audio boss_hit.mp3 non trovato.");
-      }
+      try { await powerUpAudio.current.loadAsync(powerUpSoundFile); } catch (e) { console.log("Audio powerup.mp3 non trovato."); }
+      try { await bossHitAudio.current.loadAsync(require('./assets/boss_hit.mp3')); } catch (e) { console.log("Audio boss_hit.mp3 non trovato."); }
       if (dogHitAudio.current == null) {
         dogHitAudio.current = new Audio.Sound();
         dogHitAudio.current.loadAsync(require('./assets/life.mp3'));
@@ -273,19 +268,39 @@ export default function App() {
       if (started && !isPaused && !isGameOver && !isLevelTransitioning && !powerUpRef.current) {
         const delay = Math.random() * 3000 + 3000;
         powerUpTimer = setTimeout(() => {
-          const HORIZONTAL_MARGIN = 40;
+          
+          // --- MODIFICA INIZIO: Switch con 4 casi separati per flessibilità ---
+          let chances = 1; // Default a 1 possibilità
+          switch (gameMode) {
+            case 'ZEN':
+              chances = 1;
+              break;
+            case 'NORMAL':
+              chances = 2;
+              break;
+            case 'ADVANCED':
+              chances = 3;
+              break;
+            case 'PANIC':
+              chances = 4; 
+              break;
+          }
+
           powerUpRef.current = {
-            x: HORIZONTAL_MARGIN + Math.random() * (SCREEN_WIDTH - POWERUP_SIZE - 2 * HORIZONTAL_MARGIN),
+            x: POWERUP_HORIZONTAL_MARGIN + Math.random() * (SCREEN_WIDTH - POWERUP_SIZE - 2 * POWERUP_HORIZONTAL_MARGIN),
             y: -POWERUP_SIZE,
-            rotation: 0
+            rotation: 0,
+            chancesLeft: chances,
           };
+          // --- MODIFICA FINE ---
+
           schedulePowerUp();
         }, delay);
       }
     };
     if (started) schedulePowerUp();
     return () => clearTimeout(powerUpTimer);
-  }, [started, isPaused, isGameOver, isLevelTransitioning]);
+  }, [started, isPaused, isGameOver, isLevelTransitioning, gameMode]);
 
   useEffect(() => {
     const manageMusic = async () => {
@@ -389,7 +404,7 @@ export default function App() {
     bossShootTimerRef.current = 0;
   }, [levelData]);
 
-  const onUpdate = () => {
+    const onUpdate = () => {
     if (isPaused) return;
     updateLevelEffects();
     if (!started || isGameOver || isExited || isLevelTransitioning || !isLevelReady) return;
@@ -445,15 +460,15 @@ export default function App() {
     const dogBox = { x: dogXRef.current, y: SCREEN_HEIGHT - 140, width: DOG_WIDTH, height: DOG_HEIGHT };
 
     if (powerUpRef.current) {
-      powerUpRef.current.y += 3;
-      powerUpRef.current.rotation += 2;
-      if (powerUpRef.current.y > SCREEN_HEIGHT) {
-        powerUpRef.current = null;
-      } else if (isColliding({ ...powerUpRef.current, width: POWERUP_SIZE, height: POWERUP_SIZE }, dogBox)) {
+      const nextY = powerUpRef.current.y + POWERUP_SPEED;
+      const futurePowerUpBox = { ...powerUpRef.current, y: nextY, width: POWERUP_SIZE, height: POWERUP_SIZE };
+
+      if (checkPowerUpCollision(futurePowerUpBox, dogBox)) {
         powerUpAudio.current?.replayAsync();
         setIsPoweredUp(true);
         startShakeAnimation(shakeAnimation);
         powerUpRef.current = null;
+        setPowerUpRenderTick(t => t + 1);
         setShowPowerUpAura(true);
         powerUpAuraScale.setValue(0);
         powerUpAuraOpacity.setValue(1);
@@ -461,6 +476,20 @@ export default function App() {
           Animated.timing(powerUpAuraScale, { toValue: 10, duration: 400, useNativeDriver: true }),
           Animated.timing(powerUpAuraOpacity, { toValue: 0, duration: 400, delay: 100, useNativeDriver: true })
         ]).start(() => setShowPowerUpAura(false));
+      } else {
+        powerUpRef.current.y = nextY;
+        powerUpRef.current.rotation += 2;
+        
+        if (powerUpRef.current.y > SCREEN_HEIGHT) {
+          if (powerUpRef.current.chancesLeft && powerUpRef.current.chancesLeft > 0) {
+            powerUpRef.current.chancesLeft -= 1;
+            powerUpRef.current.y = -POWERUP_SIZE;
+            powerUpRef.current.x = POWERUP_HORIZONTAL_MARGIN + Math.random() * (SCREEN_WIDTH - POWERUP_SIZE - 2 * POWERUP_HORIZONTAL_MARGIN);
+          } else {
+            powerUpRef.current = null;
+          }
+          setPowerUpRenderTick(t => t + 1);
+        }
       }
     }
 
@@ -492,14 +521,8 @@ export default function App() {
         if (enemy.explosionTimer > 0) enemiesAfterUpdate.push(enemy);
         return;
       }
-      if (isColliding(enemy, dogBox)) {
-        handleGameOver();
-        return;
-      }
-      if (enemy.y + enemy.height >= SCREEN_HEIGHT - DOG_HEIGHT) {
-        handleGameOver();
-        return;
-      }
+      if (isColliding(enemy, dogBox)) { handleGameOver(); return; }
+      if (enemy.y + enemy.height >= SCREEN_HEIGHT - DOG_HEIGHT) { handleGameOver(); return; }
       enemiesAfterUpdate.push(enemy);
     });
     enemyRef.current = enemiesAfterUpdate;
@@ -541,6 +564,11 @@ export default function App() {
 
   const isColliding = (o1, o2) => o1.x < o2.x + o2.width && o1.x + o1.width > o2.x && o1.y < o2.y + o2.height && o1.y + o1.height > o2.y;
 
+  const checkPowerUpCollision = (powerUp, dogBox) => {
+    const tolerantDogBox = { ...dogBox, y: dogBox.y - POWERUP_COLLISION_TOLERANCE_Y, height: dogBox.height + POWERUP_COLLISION_TOLERANCE_Y };
+    return isColliding(powerUp, tolerantDogBox);
+  };
+
   const handleGameOver = () => {
     if (isGameOver) return;
     setIsPaused(false);
@@ -580,7 +608,7 @@ export default function App() {
     powerUpAuraScale.setValue(0);
     powerUpAuraOpacity.setValue(1);
     setShowPowerUpAura(false);
-    setCurrentScreen('intro'); // Torna all'intro
+    setCurrentScreen('intro');
   };
 
   const togglePause = () => setIsPaused(prev => !prev);
@@ -607,7 +635,6 @@ export default function App() {
     );
   }
 
-  // --- MODIFICA: Logica di rendering basata su currentScreen ---
   const renderScreen = () => {
     switch (currentScreen) {
       case 'intro':
@@ -645,7 +672,13 @@ export default function App() {
             <GameLoop onUpdate={onUpdate}>
               <Animated.View style={{ flex: 1, transform: [{ translateX: shakeAnimation }] }}>
                 <Image source={levelData.backgroundImage} style={baseStyles.background} resizeMode="cover" />
-                {powerUpRef.current && (<Animated.Image source={powerUpImage} style={{ position: 'absolute', left: powerUpRef.current.x, top: powerUpRef.current.y, width: POWERUP_SIZE, height: POWERUP_SIZE, transform: [{ rotate: `${powerUpRef.current.rotation}deg` }] }} />)}
+                {powerUpRef.current && (
+                  <Animated.Image
+                    key={powerUpRenderTick}
+                    source={powerUpImage}
+                    style={{ position: 'absolute', left: powerUpRef.current.x, top: powerUpRef.current.y, width: POWERUP_SIZE, height: POWERUP_SIZE, transform: [{ rotate: `${powerUpRef.current.rotation}deg` }] }}
+                  />
+                )}
                 {!isExited && !isLevelTransitioning && (
                   <Dog
                     dogImage={dogImage}
@@ -688,7 +721,17 @@ export default function App() {
               </View>
             )}
             {isPaused && (
-              <PauseOverlay baseStyles={baseStyles} PAUSE_TITLE_FONT_SIZE={PAUSE_TITLE_FONT_SIZE} PAUSE_BUTTON_PADDING_V={PAUSE_BUTTON_PADDING_V} PAUSE_BUTTON_PADDING_H={PAUSE_BUTTON_PADDING_H} PAUSE_BUTTON_FONT_SIZE={PAUSE_BUTTON_FONT_SIZE} togglePause={togglePause} exitGame={exitGame} />
+              <PauseOverlay 
+                baseStyles={baseStyles} 
+                PAUSE_TITLE_FONT_SIZE={PAUSE_TITLE_FONT_SIZE} 
+                PAUSE_BUTTON_PADDING_V={PAUSE_BUTTON_PADDING_V} 
+                PAUSE_BUTTON_PADDING_H={PAUSE_BUTTON_PADDING_H} 
+                PAUSE_BUTTON_FONT_SIZE={PAUSE_BUTTON_FONT_SIZE}
+                PAUSE_BUTTON_WIDTH={200}
+                PAUSE_BUTTON_HEIGHT={50}
+                togglePause={togglePause} 
+                exitGame={exitGame} 
+              />
             )}
             {isLevelTransitioning && !showWinScreen && (
               <LevelCompleteOverlay baseStyles={baseStyles} levelTransitionAnim={levelTransitionAnim} currentLevel={currentLevel} score={score} />

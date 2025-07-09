@@ -1,3 +1,0 @@
-- [ ] Sistemare collision powerup
-- [ ] Regolare difficoltà livelli
-- [ ] Sistemare posizione nome cani NTH

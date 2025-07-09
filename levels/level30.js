@@ -1,7 +1,7 @@
 // levels/level30.js
 
 // Importa il componente animato del sidekick
-import AnimatedDog from '../components/AnimatedDog2';
+import AnimatedDog from '../components/AnimatedDog3';
 import BossEnemy from '../components/BossEnemy';
 import BossHealthBar from '../components/BossHealthBar';
 import BossProjectiles from '../components/BossProjectiles';
@@ -28,10 +28,10 @@ export const level30Data = {
   sidekickComponent: () => <AnimatedDog size={300} />, // ATTENZIONE: funzione che restituisce il componente JSX
 
   // --- Dimensione del compagno per questo livello (facoltativo, lo riceve già il componente) ---
-  sidekickSize: 280,
+  sidekickSize: 300,
 
   // --- Nome del compagno per questo livello ---
-  sidekickName: "JASPER 30",
+  sidekickName: ":)",
 
   // Asset specifici per questo livello
   backgroundImage: require('../assets/background2.png'),
@@ -46,7 +46,7 @@ export const level30Data = {
   levelEffects: {
     shake: {
       interval: 480, // Tremolio ogni 480 tick (circa 8 secondi)
-      intensity: 20, // Forza del tremolio
+      intensity: 40, // Forza del tremolio
     }
   },
 

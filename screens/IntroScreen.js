@@ -100,7 +100,7 @@ export default function IntroScreen({ onPlay, onShowLeaderboard, onShowLeaderboa
             <Text style={styles.miniButtonText}>HOW TO</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={onShowLeaderboard} style={styles.miniButton}>
-            <Text style={styles.miniButtonText}>TOP SCORES</Text>
+            <Text style={styles.miniButtonText}>TOP 10</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={onShowStory} style={styles.miniButton}> 
             <Text style={styles.miniButtonText}>STORY</Text>

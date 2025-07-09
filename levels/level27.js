@@ -5,13 +5,13 @@ export const level27Data = {
   level: 27,
 
   // --- Immagine del compagno per questo livello ---
-  sidekickImage: require('../assets//img/sk/palu.png'),
+  sidekickImage: require('../assets//img/sk/nessa.png'),
   
   // --- Dimensione del compagno per questo livello ---
   sidekickSize: 200,
 
   // --- Nome del compagno per questo livello ---
-  sidekickName: "PALU 27",
+  sidekickName: "NESSA",
 
   // Asset specifici per questo livello
 
