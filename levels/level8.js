@@ -15,8 +15,8 @@ export const level8Data = {
   sidekickName: "TEA", // Aggiungi il nome del sidekick qui
 
   // Asset specifici per questo livello
-  backgroundImage: require('../assets/bg.jpg'), // Potrebbe essere background3.png
-  enemyImage: require('../assets/lupo.png'), 
+  backgroundImage: require('../assets/img/bg/sfondo1.png'), // Potrebbe essere background3.png
+  enemyImage: require('../assets/img/enemy/lv/6_9_aereo.png'), 
   backgroundMusicFile: require('../assets/sounds/levels/6_9.mp3'), 
 
   // Configurazione della griglia più difficile

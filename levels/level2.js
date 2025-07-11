@@ -15,7 +15,7 @@ export const level2Data = {
 
   // Asset specifici per questo livello
   backgroundImage: require('../assets/bg.jpg'), // Potrebbe essere background3.png
-  enemyImage: require('../assets/enemy2.png'), // Potrebbe essere enemy2.png
+  enemyImage: require('../assets/img/enemy/lv/1_4_ambulance.png'), // Potrebbe essere enemy2.png
   backgroundMusicFile: require('../assets/sounds/levels/1_4.mp3'),
 
   // Configurazione della griglia dei nemici

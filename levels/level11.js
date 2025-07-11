@@ -15,8 +15,8 @@ export const level11Data = {
   sidekickName: "OLIMPIA", // Aggiungi il nome del sidekick qui
 
   // Asset specifici per questo livello
-  backgroundImage: require('../assets/bg.jpg'), // Potrebbe essere background3.png
-  enemyImage: require('../assets/lupo.png'), 
+  backgroundImage: require('../assets/img/bg/sfondo2.png'), // Potrebbe essere background3.png
+  enemyImage: require('../assets/img/enemy/lv/11_14_fire.png'), 
   backgroundMusicFile: require('../assets/sounds/levels/11_14.mp3'), 
 
   // Configurazione della griglia più difficile

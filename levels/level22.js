@@ -5,7 +5,7 @@ export const level22Data = {
   level: 22,
 
   // --- Immagine del compagno per questo livello ---
-  sidekickImage: require('../assets//img/sk/vittoria2.png'),
+  sidekickImage: require('../assets/img/sk/vittoria2.png'),
   
   // --- Dimensione del compagno per questo livello ---
   sidekickSize: 140,
@@ -14,8 +14,8 @@ export const level22Data = {
   sidekickName: "VITTO",
 
   // Asset specifici per questo livello
-  backgroundImage: require('../assets/background2.png'),
-  enemyImage: require('../assets/lupo.png'), 
+  backgroundImage: require('../assets/img/bg/sfondo4_v2.png'),
+  enemyImage: require('../assets/img/enemy/lv/21_24_chopper.png'), 
   backgroundMusicFile: require('../assets/sounds/levels/21_24.mp3'), 
 
   // Configurazione della griglia più difficile

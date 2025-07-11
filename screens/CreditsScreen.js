@@ -6,7 +6,7 @@ import { Audio } from 'expo-av';
 import AnimatedDog from '../components/AnimatedDog';
 import AnimatedDog2 from '../components/AnimatedDog2';
 
-const HOWTO_URL = 'https://raw.githubusercontent.com/mariocorallodev/zetacontent/refs/heads/main/howto.txt';
+const HOWTO_URL = 'https://raw.githubusercontent.com/mariocorallodev/zetacontent/refs/heads/main/credits.txt';
 
 export default function CreditsScreen({ onBack }) {
   const [fontsLoaded] = useFonts({ 'PressStart2P': PressStart2P_400Regular });

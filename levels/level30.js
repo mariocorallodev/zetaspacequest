@@ -35,7 +35,7 @@ export const level30Data = {
 
   // Asset specifici per questo livello
   backgroundImage: require('../assets/background2.png'),
-  enemyImage: require('../assets/img/enemy/phon.png'),
+  enemyImage: require('../assets/img/enemy/boss/30_temporale.png'),
   backgroundMusicFile: require('../assets/sounds/levels/30.mp3'),
 
   difficulty: 2.5, // livello 30

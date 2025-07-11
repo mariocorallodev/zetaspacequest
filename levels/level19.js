@@ -5,7 +5,7 @@ export const level19Data = {
   level: 19,
 
   // --- Immagine del compagno per questo livello ---
-  sidekickImage: require('../assets//img/sk/edna.png'),
+  sidekickImage: require('../assets/img/sk/edna.png'),
   
   // --- Dimensione del compagno per questo livello ---
   sidekickSize: 160,
@@ -14,8 +14,8 @@ export const level19Data = {
   sidekickName: "EDNA",
 
   // Asset specifici per questo livello
-  backgroundImage: require('../assets/background2.png'),
-  enemyImage: require('../assets/lupo.png'), 
+  backgroundImage: require('../assets/img/bg/sfondo3.png'),
+  enemyImage: require('../assets/img/enemy/lv/16_19_lupo.png'), 
   backgroundMusicFile: require('../assets/sounds/levels/16_19.mp3'), 
 
   // Configurazione della griglia più difficile

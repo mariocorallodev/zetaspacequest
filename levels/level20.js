@@ -41,7 +41,7 @@ export const level20Data = {
 
   // Asset specifici per questo livello
   backgroundImage: require('../assets/background2.png'),
-  enemyImage: require('../assets/img/enemy/glovo.png'),
+  enemyImage: require('../assets/img/enemy/boss/20_skate.png'),
   backgroundMusicFile: require('../assets/sounds/levels/20.mp3'),
 
   difficulty: 2.5, // livello 20

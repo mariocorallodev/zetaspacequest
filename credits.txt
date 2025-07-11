@@ -1,0 +1,17 @@
+ZETA SPACE QUEST - CREDITI
+
+Ideazione, design, grafica, sviluppo e colonna sonora originale:
+Mario Corallo
+
+Alcuni effetti sonori provenienti da Pixabay (pixabay.com)
+
+Tutte le immagini sono originali © Mario Corallo
+
+Un ringraziamento speciale a:
+- Gaia, Stella e Leone
+- Tutti gli amici a quattro zampe e i loro umani
+- Tutti i playtester e chi ha supportato il progetto
+
+Realizzato con Expo & React Native
+
+Tutti i diritti riservati 

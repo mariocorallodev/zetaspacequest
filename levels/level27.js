@@ -5,7 +5,7 @@ export const level27Data = {
   level: 27,
 
   // --- Immagine del compagno per questo livello ---
-  sidekickImage: require('../assets//img/sk/nessa.png'),
+  sidekickImage: require('../assets/img/sk/nessa.png'),
   
   // --- Dimensione del compagno per questo livello ---
   sidekickSize: 200,
@@ -15,9 +15,9 @@ export const level27Data = {
 
   // Asset specifici per questo livello
 
-  enemyImage: require('../assets/lupo.png'), 
+  enemyImage: require('../assets/img/enemy/lv/26_29_phon.png'), 
   backgroundMusicFile: require('../assets/sounds/levels/26-29.mp3'), 
-  backgroundImage: require('../assets/background2.png'),
+  backgroundImage: require('../assets/img/bg/sfondo5_v2.png'),
   // Configurazione della griglia più difficile
   enemyRows: 6,
   enemyCols: 10,

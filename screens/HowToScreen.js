@@ -5,7 +5,8 @@ import { useFonts, PressStart2P_400Regular } from '@expo-google-fonts/press-star
 import { SafeAreaView } from 'react-native';
 import { Audio } from 'expo-av';
 import AnimatedDog from '../components/AnimatedDog';
-import AnimatedDog2 from '../components/AnimatedDog2';
+import AnimatedDog2 from '../components/AnimatedGroup';
+import AnimatedGroup from '../components/AnimatedGroup';
 
 const HOWTO_URL = 'https://raw.githubusercontent.com/mariocorallodev/zetacontent/refs/heads/main/howto.txt';
 
@@ -101,7 +102,7 @@ export default function HowToScreen({ onBack }) {
         )}
 
         {/* Animazione prima del bottone */}
-        <AnimatedDog2 size={180} />
+        <AnimatedGroup size={380} />
 
         {/* Bottone */}
         <TouchableOpacity style={styles.bottone} onPress={onBack}>

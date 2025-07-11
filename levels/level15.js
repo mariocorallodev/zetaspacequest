@@ -41,7 +41,7 @@ export const level15Data = {
 
   // Asset specifici per questo livello
   backgroundImage: require('../assets/background2.png'),
-  enemyImage: require('../assets/img/enemy/vacuum.png'),
+  enemyImage: require('../assets/img/enemy/boss/15_fworks.png'),
   backgroundMusicFile: require('../assets/sounds/levels/15.mp3'),
 
   difficulty: 2, // livello 15

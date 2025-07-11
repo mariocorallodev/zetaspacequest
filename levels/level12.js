@@ -5,7 +5,7 @@ export const level12Data = {
   level: 12,
 
   // --- Immagine del compagno per questo livello ---
-  sidekickImage: require('../assets//img/sk/luna.png'),
+  sidekickImage: require('../assets/img/sk/luna.png'),
   
   // --- Dimensione del compagno per questo livello ---
   sidekickSize: 180,
@@ -14,8 +14,8 @@ export const level12Data = {
   sidekickName: "LUNA",
 
   // Asset specifici per questo livello
-  backgroundImage: require('../assets/background2.png'),
-  enemyImage: require('../assets/lupo.png'), 
+  backgroundImage: require('../assets/img/bg/sfondo2.png'),
+  enemyImage: require('../assets/img/enemy/lv/11_14_fire.png'), 
   backgroundMusicFile: require('../assets/sounds/levels/11_14.mp3'), 
 
   // Configurazione della griglia più difficile

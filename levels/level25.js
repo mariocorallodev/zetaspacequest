@@ -41,7 +41,7 @@ export const level25Data = {
 
   // Asset specifici per questo livello
   backgroundImage: require('../assets/background2.png'),
-  enemyImage: require('../assets/img/enemy/temporale.png'),
+  enemyImage: require('../assets/img/enemy/boss/25_glovo.png'),
   backgroundMusicFile: require('../assets/sounds/levels/25.mp3'),
 
   difficulty: 3.5, // livello 25

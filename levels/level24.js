@@ -5,7 +5,7 @@ export const level24Data = {
   level: 24,
 
   // --- Immagine del compagno per questo livello ---
-  sidekickImage: require('../assets//img/sk/palu.png'),
+  sidekickImage: require('../assets/img/sk/palu.png'),
   
   // --- Dimensione del compagno per questo livello ---
   sidekickSize: 200,
@@ -15,9 +15,9 @@ export const level24Data = {
 
   // Asset specifici per questo livello
 
-  enemyImage: require('../assets/lupo.png'), 
+  enemyImage: require('../assets/img/enemy/lv/21_24_chopper.png'), 
   backgroundMusicFile: require('../assets/sounds/levels/21_24.mp3'), 
-  backgroundImage: require('../assets/background2.png'),
+  backgroundImage: require('../assets/img/bg/sfondo4_v2.png'),
   // Configurazione della griglia più difficile
   enemyRows: 5,
   enemyCols: 9,

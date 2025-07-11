@@ -41,7 +41,7 @@ export const level5Data = {
 
   // Asset specifici per questo livello
   backgroundImage: require('../assets/background2.png'),
-  enemyImage: require('../assets/img/enemy/veterinario.png'),
+  enemyImage: require('../assets/img/enemy/boss/5_vet.png'),
   backgroundMusicFile: require('../assets/sounds/levels/5.mp3'),
 
   difficulty: 1, // livello 5

@@ -41,7 +41,7 @@ export const level10Data = {
 
   // Asset specifici per questo livello
   backgroundImage: require('../assets/background2.png'),
-  enemyImage: require('../assets/img/enemy/skate.png'),
+  enemyImage: require('../assets/img/enemy/boss/10_vacuum.png'),
   backgroundMusicFile: require('../assets/sounds/levels/10.mp3'),
 
   difficulty: 1.5, // livello 10

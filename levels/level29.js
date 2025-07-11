@@ -5,19 +5,19 @@ export const level29Data = {
   level: 29,
 
   // --- Immagine del compagno per questo livello ---
-  sidekickImage: require('../assets//img/sk/mario2.png'),
+  sidekickImage: require('../assets/img/sk/danko.png'),
   
   // --- Dimensione del compagno per questo livello ---
-  sidekickSize: 300,
+  sidekickSize: 220,
 
   // --- Nome del compagno per questo livello ---
-  sidekickName: "ASA",
+  sidekickName: "DANKO",
 
   // Asset specifici per questo livello
 
-  enemyImage: require('../assets/lupo.png'), 
+  enemyImage: require('../assets/img/enemy/lv/26_29_phon.png'), 
   backgroundMusicFile: require('../assets/sounds/levels/26-29.mp3'), 
-  backgroundImage: require('../assets/background2.png'),
+  backgroundImage: require('../assets/img/bg/sfondo5_v2.png'),
   // Configurazione della griglia più difficile
   enemyRows: 6,
   enemyCols: 10,
